@@ -29,6 +29,7 @@ public class Lexer {
       tok.wordChars('<', '<'); //modify for lab1
       tok.wordChars('=', '='); //modify for lab1
       tok.wordChars('>', '>'); //modify for lab1
+      tok.wordChars('!', '!'); //modify for lab1
       tok.lowerCaseMode(true); //ids and keywords are converted
       nextToken();
    }
