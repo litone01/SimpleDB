@@ -80,7 +80,8 @@ public class Lexer {
    }
 
    public boolean matchIndexType() {
-      return  tok.ttype==StreamTokenizer.TT_WORD && keywords.contains(tok.sval);
+      return  tok.ttype==StreamTokenizer.TT_WORD && keywords.contains(tok.sval) 
+            && (tok.sval == "hash" || tok.sval == "btree");
    }
    
    /**
