@@ -78,6 +78,10 @@ public class Lexer {
    public boolean matchId() {
       return  tok.ttype==StreamTokenizer.TT_WORD && !keywords.contains(tok.sval);
    }
+
+   public boolean matchIndexType() {
+      return  tok.ttype==StreamTokenizer.TT_WORD && keywords.contains(tok.sval);
+   }
    
    /**
     * Returns true if the current token is a operator.
@@ -173,6 +177,14 @@ public class Lexer {
       nextToken();
       return s;
    }
+
+   public String eatIndexType() {
+      if (!matchIndexType())
+         throw new BadSyntaxException();
+      String s = tok.sval;
+      nextToken();
+      return s;
+   }
    
    private void nextToken() {
       try {
@@ -186,7 +198,8 @@ public class Lexer {
    private void initKeywords() {
       keywords = Arrays.asList("select", "from", "where", "and",
                                "insert", "into", "values", "delete", "update", "set", 
-                               "create", "table", "int", "varchar", "view", "as", "index", "on");
+                               "create", "table", "int", "varchar", "view", "as", "index", "on",
+                               "using", "hash", "btree");
    }
    
    private void initOperators() {

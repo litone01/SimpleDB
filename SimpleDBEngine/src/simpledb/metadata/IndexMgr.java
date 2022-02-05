@@ -15,6 +15,7 @@ class IndexMgr {
    private Layout layout;
    private TableMgr tblmgr;
    private StatMgr statmgr;
+   private String indexType;
    
    /**
     * Create the index manager.
@@ -35,6 +36,26 @@ class IndexMgr {
       this.statmgr = statmgr;
       layout = tblmgr.getLayout("idxcat", tx);
    }
+
+   /**
+    * Create an index of the specified type for the specified field.
+    * A unique ID is assigned to this index, and its information
+    * is stored in the idxcat table.
+    * @param idxname the name of the index
+    * @param tblname the name of the indexed table
+    * @param fldname the name of the indexed field
+    * @param indexType the type of the index, defaults to hash if it's not specified
+    * @param tx the calling transaction
+    */
+    public void createIndex(String idxname, String tblname, String fldname, Transaction tx) {
+      this.indexType = "hash";
+      TableScan ts = new TableScan(tx, "idxcat", layout);
+      ts.insert();
+      ts.setString("indexname", idxname);
+      ts.setString("tablename", tblname);
+      ts.setString("fieldname", fldname);
+      ts.close();
+   }
    
    /**
     * Create an index of the specified type for the specified field.
@@ -43,9 +64,11 @@ class IndexMgr {
     * @param idxname the name of the index
     * @param tblname the name of the indexed table
     * @param fldname the name of the indexed field
+    * @param indexType the type of the index, whether it's btree or hash
     * @param tx the calling transaction
     */
-   public void createIndex(String idxname, String tblname, String fldname, Transaction tx) {
+   public void createIndex(String idxname, String tblname, String fldname, String indexType, Transaction tx) {
+      this.indexType = indexType;
       TableScan ts = new TableScan(tx, "idxcat", layout);
       ts.insert();
       ts.setString("indexname", idxname);
@@ -70,7 +93,7 @@ class IndexMgr {
          String fldname = ts.getString("fieldname");
          Layout tblLayout = tblmgr.getLayout(tblname, tx);
          StatInfo tblsi = statmgr.getStatInfo(tblname, tblLayout, tx);
-         IndexInfo ii = new IndexInfo(idxname, fldname, tblLayout.schema(), tx, tblsi);
+         IndexInfo ii = new IndexInfo(idxname, fldname, this.indexType, tblLayout.schema(), tx, tblsi);
          result.put(fldname, ii);
       }
       ts.close();
