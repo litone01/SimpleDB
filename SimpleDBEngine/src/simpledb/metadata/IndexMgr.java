@@ -15,7 +15,6 @@ class IndexMgr {
    private Layout layout;
    private TableMgr tblmgr;
    private StatMgr statmgr;
-   private String indexType;
    
    /**
     * Create the index manager.
@@ -30,6 +29,7 @@ class IndexMgr {
          sch.addStringField("indexname", MAX_NAME);
          sch.addStringField("tablename", MAX_NAME);
          sch.addStringField("fieldname", MAX_NAME);
+         sch.addStringField("indextype", MAX_NAME);
          tblmgr.createTable("idxcat", sch, tx);
       }
       this.tblmgr = tblmgr;
@@ -48,12 +48,12 @@ class IndexMgr {
     * @param tx the calling transaction
     */
     public void createIndex(String idxname, String tblname, String fldname, Transaction tx) {
-      this.indexType = "hash";
       TableScan ts = new TableScan(tx, "idxcat", layout);
       ts.insert();
       ts.setString("indexname", idxname);
       ts.setString("tablename", tblname);
       ts.setString("fieldname", fldname);
+      ts.setString("indextype", "hash");
       ts.close();
    }
    
@@ -68,12 +68,12 @@ class IndexMgr {
     * @param tx the calling transaction
     */
    public void createIndex(String idxname, String tblname, String fldname, String indexType, Transaction tx) {
-      this.indexType = indexType;
       TableScan ts = new TableScan(tx, "idxcat", layout);
       ts.insert();
       ts.setString("indexname", idxname);
       ts.setString("tablename", tblname);
       ts.setString("fieldname", fldname);
+      ts.setString("indextype", indexType);
       ts.close();
    }
    
@@ -91,9 +91,10 @@ class IndexMgr {
          if (ts.getString("tablename").equals(tblname)) {
          String idxname = ts.getString("indexname");
          String fldname = ts.getString("fieldname");
+         String indexType = ts.getString("indextype");
          Layout tblLayout = tblmgr.getLayout(tblname, tx);
          StatInfo tblsi = statmgr.getStatInfo(tblname, tblLayout, tx);
-         IndexInfo ii = new IndexInfo(idxname, fldname, this.indexType, tblLayout.schema(), tx, tblsi);
+         IndexInfo ii = new IndexInfo(idxname, fldname, indexType, tblLayout.schema(), tx, tblsi);
          result.put(fldname, ii);
       }
       ts.close();
