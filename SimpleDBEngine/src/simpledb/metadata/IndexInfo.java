@@ -56,7 +56,7 @@ public class IndexInfo {
                      Transaction tx,  StatInfo si) {
       this.idxname = idxname;
       this.fldname = fldname;
-      this.indexType = indexType == HASH_TYPE ? HASH_TYPE : BTREE_TYPE;
+      this.indexType = indexType.equals(HASH_TYPE) ? HASH_TYPE : BTREE_TYPE;
       this.tx = tx;
       this.tblSchema = tblSchema;
       this.idxLayout = createIdxLayout();
@@ -68,7 +68,7 @@ public class IndexInfo {
     * @return the Index object associated with this information
     */
    public Index open() {
-      if (indexType == BTREE_TYPE) {
+      if (indexType.equals(BTREE_TYPE)) {
          return new BTreeIndex(tx, idxname, idxLayout);
       } else {
          return new HashIndex(tx, idxname, idxLayout);
@@ -89,7 +89,7 @@ public class IndexInfo {
    public int blocksAccessed() {
       int rpb = tx.blockSize() / idxLayout.slotSize();
       int numblocks = si.recordsOutput() / rpb;
-      if (indexType == BTREE_TYPE) {
+      if (indexType.equals(BTREE_TYPE)) {
          return BTreeIndex.searchCost(numblocks, rpb);
       } else {
          return HashIndex.searchCost(numblocks, rpb);
