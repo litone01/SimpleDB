@@ -179,6 +179,13 @@ public class Lexer {
       return s;
    }
 
+   /**
+    * Throws an exception if the current token is not 
+    * an index type. 
+    * Otherwise, returns the index type string 
+    * and moves to the next token.
+    * @return the string value of the current token
+    */
    public String eatIndexType() {
       if (!matchIndexType())
          throw new BadSyntaxException();

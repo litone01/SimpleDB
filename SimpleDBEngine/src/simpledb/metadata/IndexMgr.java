@@ -67,7 +67,8 @@ class IndexMgr {
     * @param indexType the type of the index, whether it's btree or hash
     * @param tx the calling transaction
     */
-   public void createIndex(String idxname, String tblname, String fldname, String indexType, Transaction tx) {
+   public void createIndex(String idxname, String tblname, String fldname, 
+                           String indexType, Transaction tx) {
       TableScan ts = new TableScan(tx, "idxcat", layout);
       ts.insert();
       ts.setString("indexname", idxname);

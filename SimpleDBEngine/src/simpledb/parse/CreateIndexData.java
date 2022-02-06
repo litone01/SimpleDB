@@ -8,7 +8,7 @@ public class CreateIndexData {
    private String idxname, tblname, fldname, indexType;
    
    /**
-    * Saves the table and field names of the specified index. IndexType is defaulted to hash when "... using indexType" is not provided
+    * Saves the table and field names of the specified index. IndexType is defaulted to hash.
     */
    public CreateIndexData(String idxname, String tblname, String fldname) {
       this.idxname = idxname;
@@ -18,7 +18,8 @@ public class CreateIndexData {
    }
 
    /**
-    * Saves the table, field names, and indexType of the specified index.
+    * Overloaded constructor.
+    * Saves the index name, table name, field name, and indexType of the specified index.
     */
     public CreateIndexData(String idxname, String tblname, String fldname, String indexType) {
       this.idxname = idxname;
