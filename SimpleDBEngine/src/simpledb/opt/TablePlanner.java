@@ -86,7 +86,8 @@ class TablePlanner {
          Constant val = mypred.equatesWithConstant(fldname);
          if (val != null) {
             IndexInfo ii = indexes.get(fldname);
-            System.out.println("index on " + fldname + " used");
+            String indexType = ii.getIndexType();
+            System.out.println(indexType + " index on " + fldname + " used");
             return new IndexSelectPlan(myplan, ii, val);
          }
       }

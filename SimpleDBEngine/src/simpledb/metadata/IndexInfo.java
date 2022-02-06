@@ -137,4 +137,11 @@ public class IndexInfo {
       }
       return new Layout(sch);
    }
+
+    /**
+    * @return the index type (either "hash" or "btree" currently) of the index record
+    */
+   public String getIndexType() {
+      return indexType;
+   }
 }
