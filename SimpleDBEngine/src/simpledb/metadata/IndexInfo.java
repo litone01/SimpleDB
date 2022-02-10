@@ -17,7 +17,9 @@ import simpledb.index.btree.BTreeIndex; //in case we change to btree indexing
  * @author Edward Sciore
  */
 public class IndexInfo {
-   private String idxname, fldname;
+   private final String HASH_TYPE = "hash";
+   private final String BTREE_TYPE = "btree";
+   private String idxname, fldname, indexType;
    private Transaction tx;
    private Schema tblSchema;
    private Layout idxLayout;
@@ -35,19 +37,42 @@ public class IndexInfo {
                     Transaction tx,  StatInfo si) {
       this.idxname = idxname;
       this.fldname = fldname;
+      this.indexType = HASH_TYPE;
       this.tx = tx;
       this.tblSchema = tblSchema;
       this.idxLayout = createIdxLayout();
       this.si = si;
    }
-   
+
+      /**
+    * Create an IndexInfo object for the specified index.
+    * @param idxname the name of the index
+    * @param fldname the name of the indexed field
+    * @param tx the calling transaction
+    * @param tblSchema the schema of the table
+    * @param si the statistics for the table
+    */
+    public IndexInfo(String idxname, String fldname, String indexType, Schema tblSchema,
+                     Transaction tx,  StatInfo si) {
+      this.idxname = idxname;
+      this.fldname = fldname;
+      this.indexType = indexType.equals(HASH_TYPE) ? HASH_TYPE : BTREE_TYPE;
+      this.tx = tx;
+      this.tblSchema = tblSchema;
+      this.idxLayout = createIdxLayout();
+      this.si = si;
+   }
+         
    /**
     * Open the index described by this object.
     * @return the Index object associated with this information
     */
    public Index open() {
-      // return new HashIndex(tx, idxname, idxLayout);
-      return new BTreeIndex(tx, idxname, idxLayout);
+      if (indexType.equals(BTREE_TYPE)) {
+         return new BTreeIndex(tx, idxname, idxLayout);
+      } else {
+         return new HashIndex(tx, idxname, idxLayout);
+      }
    }
    
    /**
@@ -64,8 +89,11 @@ public class IndexInfo {
    public int blocksAccessed() {
       int rpb = tx.blockSize() / idxLayout.slotSize();
       int numblocks = si.recordsOutput() / rpb;
-      // return HashIndex.searchCost(numblocks, rpb);
-      return BTreeIndex.searchCost(numblocks, rpb);
+      if (indexType.equals(BTREE_TYPE)) {
+         return BTreeIndex.searchCost(numblocks, rpb);
+      } else {
+         return HashIndex.searchCost(numblocks, rpb);
+      }
    }
    
    /**
@@ -108,5 +136,12 @@ public class IndexInfo {
          sch.addStringField("dataval", fldlen);
       }
       return new Layout(sch);
+   }
+
+   /**
+   * @return the index type (either "hash" or "btree" currently) of the index record
+   */
+   public String getIndexType() {
+      return indexType;
    }
 }

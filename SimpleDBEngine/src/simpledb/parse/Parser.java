@@ -21,6 +21,10 @@ public class Parser {
    public String field() {
       return lex.eatId();
    }
+
+   public String indexType() {
+      return lex.eatIndexType();
+   }
    
    public Constant constant() {
       if (lex.matchStringConstant())
@@ -241,7 +245,9 @@ public class Parser {
       lex.eatDelim('(');
       String fldname = field();
       lex.eatDelim(')');
-      return new CreateIndexData(idxname, tblname, fldname);
+      lex.eatKeyword("using");
+      String indexType = indexType();
+      return new CreateIndexData(idxname, tblname, fldname, indexType);
    }
 }
 
