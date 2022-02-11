@@ -54,3 +54,6 @@ recordtest/
 .project
 .DS_Store
 .settings
+
+#ignore all db files
+db_*/
