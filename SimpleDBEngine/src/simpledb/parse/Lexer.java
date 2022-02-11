@@ -11,8 +11,9 @@ import simpledb.query.Operator;;
  */
 public class Lexer {
    private Collection<String> keywords;
-   //modify for lab1
+   // add operators list for supporting non-equality operations
    private Collection<String> operators;
+   private Collection<Character> singleOprs;
    private StreamTokenizer tok;
    
    /**
@@ -22,14 +23,9 @@ public class Lexer {
    public Lexer(String s) {
       initKeywords();
       initOperators();
-      //modify for lab1
       tok = new StreamTokenizer(new StringReader(s));
       tok.ordinaryChar('.');   //disallow "." in identifiers
       tok.wordChars('_', '_'); //allow "_" in identifiers
-      tok.wordChars('<', '<'); //modify for lab1
-      tok.wordChars('=', '='); //modify for lab1
-      tok.wordChars('>', '>'); //modify for lab1
-      tok.wordChars('!', '!'); //modify for lab1
       tok.lowerCaseMode(true); //ids and keywords are converted
       nextToken();
    }
@@ -85,14 +81,11 @@ public class Lexer {
    }
    
    /**
-    * Returns true if the current token is a operator.
-    * @return true if the current token is a operator
+    * Returns true if the current token is one of the legal single operators.
+    * @return true if the current token is one of the legal single operators.
     */
-   public boolean matchOperator() {
-	   //modify for lab1
-      boolean result = tok.ttype == StreamTokenizer.TT_WORD && operators.contains(tok.sval);
-//      System.out.print(result);
-      return result;
+   public boolean matchSingleOperator() {
+	   return singleOprs.contains((char) tok.ttype);
    }
    
    
@@ -111,16 +104,29 @@ public class Lexer {
    }
    
    /**
-    * Throws an exception if the current token is not a proper operator. 
+    * Throws an exception if the current token is not a legal operator. 
     * Otherwise, moves to the next token.
+    * @return the corresponding Operator object of the current token
     */
    public Operator eatOpr() {
-	   // modify for lab 1
-      if (!matchOperator())
+      String tokSval = "";
+	   // 1. match the first single operator
+      if (!matchSingleOperator()) {
          throw new BadSyntaxException();
-      String s = tok.sval;
-      Operator opr = new Operator(s);
+      }
+      tokSval += (char) tok.ttype;
+      // 2. try to match the second single operator
       nextToken();
+      if (matchSingleOperator()) {
+         tokSval += (char) tok.ttype;
+         nextToken();
+      }
+      // 3. check if the combined operator is legal
+      if (!operators.contains(tokSval)) {
+         throw new BadSyntaxException();
+      }
+      // 4. return the operator
+      Operator opr = new Operator(tokSval);
       return opr;
    }
    
@@ -210,8 +216,9 @@ public class Lexer {
                                "using", "hash", "btree");
    }
    
+   // init operators and singleOprs for matching and eating in the Lexer
    private void initOperators() {
-	   //modify for lab1
-	      operators = Arrays.asList("<", "<=", "=", ">=", ">", "!=", "<>");
-	   }
+      operators = Arrays.asList("<", "<=", "=", ">=", ">", "!=", "<>");
+      singleOprs = Arrays.asList('<', '>', '=', '!');
+	}
 }

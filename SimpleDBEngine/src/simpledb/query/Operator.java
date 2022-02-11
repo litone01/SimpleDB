@@ -1,9 +1,9 @@
 package simpledb.query;
 
-import simpledb.record.Schema;
-
-import simpledb.parse.BadSyntaxException;
-
+/**
+ * A class that stores the type of an operator. 
+ * This is added to support non-equality operator for lab 1.
+ */
 public class Operator {
 	private String opr;
 	public Operator(String s) {
@@ -31,5 +31,10 @@ public class Operator {
 			return false;
 		}
 		
+	}
+
+	@Override
+	public String toString() {
+		return this.opr;
 	}
 }
