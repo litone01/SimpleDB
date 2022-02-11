@@ -7,7 +7,7 @@ import simpledb.server.SimpleDB;
 public class CreateStudentDB {
 	public static void main(String[] args) {
 		try {
-			SimpleDB db = new SimpleDB("studentdb");
+			SimpleDB db = new SimpleDB("db_studentdb");
 			Transaction tx  = db.newTx();
 			Planner planner = db.planner();
 			
