@@ -16,6 +16,7 @@ public class SortPlan implements Plan {
    private Schema sch;
    private RecordComparator comp;
    
+   // TODO: can we resolve and update the dependency with GroupByPlan and MergeJoinPlan
    /**
     * Create a sort plan for the specified query.
     * @param p the plan for the underlying query
@@ -29,6 +30,22 @@ public class SortPlan implements Plan {
       comp = new RecordComparator(sortfields);
    }
    
+   // TODO: can we solve the issue when overloading RecordComparator consturctor 
+   // and dont take in the boolean?
+   /**
+    * Overloaded constructor, create a sort plan for the specified query.
+    * @param orderByFields the fields to sort by based on the order by clause
+    * @param tx the calling transaction
+    * @param p the plan for the underlying query
+    */
+    public SortPlan(List<OrderByPair> orderByFields, Transaction tx, Plan p) {
+      this.tx = tx;
+      this.p = p;
+      sch = p.schema();
+      boolean isOrderByClauseSpecified = true;
+      comp = new RecordComparator(orderByFields, isOrderByClauseSpecified);
+   }
+
    /**
     * This method is where most of the action is.
     * Up to 2 sorted temporary tables are created,
@@ -128,9 +145,9 @@ public class SortPlan implements Plan {
       boolean hasmore2 = src2.next();
       while (hasmore1 && hasmore2)
          if (comp.compare(src1, src2) < 0)
-         hasmore1 = copy(src1, dest);
-      else
-         hasmore2 = copy(src2, dest);
+            hasmore1 = copy(src1, dest);
+         else
+            hasmore2 = copy(src2, dest);
       
       if (hasmore1)
          while (hasmore1)
