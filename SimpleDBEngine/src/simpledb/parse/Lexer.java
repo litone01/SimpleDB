@@ -217,7 +217,7 @@ public class Lexer {
     */
    public OrderByType eatOrderByType() {
       // no order by type is specified, use default type
-      if (matchDelim(',') || matchDelim(';') || keywords.contains(tok.sval) || !hasNext()) {
+      if (matchDelim(',') || matchDelim(';') || !hasNext()) {
          return OrderByType.ASC;
       } else if (!matchOrderByType())
          throw new BadSyntaxException();
