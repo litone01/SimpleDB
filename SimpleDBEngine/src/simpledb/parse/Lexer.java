@@ -210,12 +210,16 @@ public class Lexer {
    /**
     * Throws an exception if the current token is not 
     * a legal order by type, that is either "asc" or "desc". 
+    * If no order by type is specified, the default is "asc".
     * Otherwise, returns the orderByType enum object
     * and moves to the next token.
     * @return the corresponding orderByType enum object
     */
    public OrderByType eatOrderByType() {
-      if (!matchOrderByType())
+      // no order by type is specified, use default type
+      if (matchDelim(',') || matchDelim(';') || keywords.contains(tok.sval) || !hasNext()) {
+         return OrderByType.ASC;
+      } else if (!matchOrderByType())
          throw new BadSyntaxException();
       String s = tok.sval;
       nextToken();
@@ -232,6 +236,10 @@ public class Lexer {
       }
    }
    
+   private boolean hasNext() {
+      return tok.ttype != StreamTokenizer.TT_EOF;
+   }
+
    private void initKeywords() {
       keywords = Arrays.asList("select", "from", "where", "and",
                                "insert", "into", "values", "delete", "update", "set", 

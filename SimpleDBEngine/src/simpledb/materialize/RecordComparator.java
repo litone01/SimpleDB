@@ -30,6 +30,9 @@ public class RecordComparator implements Comparator<Scan> {
     public RecordComparator(List<OrderByPair> orderByFields, boolean isOrderByClauseSpecified) {
       this.orderByFields = orderByFields;
       this.isOrderByClauseSpecified = isOrderByClauseSpecified;
+      for (OrderByPair orderByField : orderByFields) {
+        System.out.println("[SORT BY] fieldname: " + orderByField.field() + ", order: " + orderByField.order());
+      }
    }
 
    /**

@@ -16,6 +16,31 @@ public class OrderByClauseTest {
             
             String qry;
             // Test query on order by clause
+            // When order by type is not specified.
+            qry = "select sname, gradyear, majorid from student where majorid > 0 order by majorid";
+            TestUtil.executeSelectQuery(qry, tx, planner);
+
+            qry = "select sname, gradyear, majorid from student where majorid > 0 order by majorid ";
+            TestUtil.executeSelectQuery(qry, tx, planner);
+
+            qry = "select sname, gradyear, majorid from student where majorid > 0 order by majorid, gradyear";
+            TestUtil.executeSelectQuery(qry, tx, planner);
+
+            qry = "select sname, gradyear, majorid from student where majorid > 0 order by majorid , gradyear ";
+            TestUtil.executeSelectQuery(qry, tx, planner);
+
+            qry = "select sname, gradyear, majorid from student where majorid > 0 order by majorid , gradyear desc";
+            TestUtil.executeSelectQuery(qry, tx, planner);
+
+            qry = "select sname, gradyear, majorid from student where majorid > 0 order by majorid desc, gradyear ";
+            TestUtil.executeSelectQuery(qry, tx, planner);
+
+            qry = "select sname, gradyear, majorid from student where majorid > 0 order by majorid desc, gradyear ;";
+            TestUtil.executeSelectQuery(qry, tx, planner);
+
+            qry = "select sname, gradyear, majorid from student order by majorid desc, gradyear ;";
+            TestUtil.executeSelectQuery(qry, tx, planner);
+
             // Single order by clause ascending
             qry = "select sname, gradyear, majorid from student where majorid > 0 order by majorid asc";
             TestUtil.executeSelectQuery(qry, tx, planner);
