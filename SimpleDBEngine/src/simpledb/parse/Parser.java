@@ -57,6 +57,18 @@ public class Parser {
       return pred;
    }
    
+   // Parse each field and its order into an OrderByPair,
+   // and return a list of them, which forms the OrderByClause.
+   public List<OrderByPair> orderByClause() {
+      List<OrderByPair> clause = new ArrayList<OrderByPair>();
+      clause.add(new OrderByPair(field(), lex.eatOrderByType()));
+      while (lex.matchDelim(',')) {
+         lex.eatDelim(',');
+         clause.add(new OrderByPair(field(), lex.eatOrderByType()));
+      }
+      return clause;
+   }
+
 // Methods for parsing queries
    
    public QueryData query() {
@@ -69,7 +81,15 @@ public class Parser {
          lex.eatKeyword("where");
          pred = predicate();
       }
-      return new QueryData(fields, tables, pred);
+      // Optional to have an order by clause
+      List<OrderByPair> orderByClause = new ArrayList<OrderByPair>();
+      if (lex.matchKeyword("order")) {
+         lex.eatKeyword("order");
+         lex.eatKeyword("by");
+         orderByClause = orderByClause();
+      }
+
+      return new QueryData(fields, tables, pred, orderByClause);
    }
    
    private List<String> selectList() {

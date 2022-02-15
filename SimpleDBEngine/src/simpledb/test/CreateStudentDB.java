@@ -7,7 +7,7 @@ import simpledb.server.SimpleDB;
 public class CreateStudentDB {
 	public static void main(String[] args) {
 		try {
-			SimpleDB db = new SimpleDB("studentdb");
+			SimpleDB db = new SimpleDB("db_studentdb");
 			Transaction tx  = db.newTx();
 			Planner planner = db.planner();
 			
@@ -15,17 +15,17 @@ public class CreateStudentDB {
 			planner.executeUpdate(s, tx);
 			System.out.println("Table STUDENT created.");
 			
-			s = "create index studentid on student (sid) using hash";
-			planner.executeUpdate(s, tx);
-			System.out.println("Hash Index studentid created on Table student and Field sid.");
+			// s = "create index studentid on student (sid) using hash";
+			// planner.executeUpdate(s, tx);
+			// System.out.println("Hash Index studentid created on Table student and Field sid.");
 
-			s = "create index studentGradYear on student (gradyear) using btree";
-			planner.executeUpdate(s, tx);
-			System.out.println("Btree Index studentGradYear created on Table student and Field gradyear.");
+			// s = "create index studentGradYear on student (gradyear) using btree";
+			// planner.executeUpdate(s, tx);
+			// System.out.println("Btree Index studentGradYear created on Table student and Field gradyear.");
 
-			s = "create index majorid on STUDENT (MajorId) using btree";
-			planner.executeUpdate(s, tx);
-			System.out.println("Btree Index majorid created on Table STUDENT and Field MajorId.");
+			// s = "create index majorid on STUDENT (MajorId) using btree";
+			// planner.executeUpdate(s, tx);
+			// System.out.println("Btree Index majorid created on Table STUDENT and Field MajorId.");
 
 			s = "insert into STUDENT(SId, SName, MajorId, GradYear) values ";
 			String[] studvals = {"(1, 'joe', 10, 2021)",
@@ -86,9 +86,9 @@ public class CreateStudentDB {
 			planner.executeUpdate(s, tx);
 			System.out.println("Table ENROLL created.");
 			
-			s = "create index enrollStudentId on enroll(studentid) using hash";
-			planner.executeUpdate(s, tx);
-			System.out.println("Hash Index enrollStudentId created on Table enroll and Field studentid.");
+			// s = "create index enrollStudentId on enroll(studentid) using hash";
+			// planner.executeUpdate(s, tx);
+			// System.out.println("Hash Index enrollStudentId created on Table enroll and Field studentid.");
 
 			s = "insert into ENROLL(EId, StudentId, SectionId, Grade) values ";
 			String[] enrollvals = {"(14, 1, 13, 'A')",

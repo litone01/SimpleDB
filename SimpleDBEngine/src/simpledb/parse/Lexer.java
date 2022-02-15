@@ -3,7 +3,8 @@ package simpledb.parse;
 import java.util.*;
 import java.io.*;
 
-import simpledb.query.Operator;;
+import simpledb.query.Operator;
+import simpledb.query.OrderByType;;
 
 /**
  * The lexical analyzer.
@@ -14,6 +15,8 @@ public class Lexer {
    // add operators list for supporting non-equality operations
    private Collection<String> operators;
    private Collection<Character> singleOprs;
+   // add order by type list for supporting order by clause
+   private Collection<String> orderByTypes;
    private StreamTokenizer tok;
    
    /**
@@ -23,6 +26,7 @@ public class Lexer {
    public Lexer(String s) {
       initKeywords();
       initOperators();
+      initOrderByTypes();
       tok = new StreamTokenizer(new StringReader(s));
       tok.ordinaryChar('.');   //disallow "." in identifiers
       tok.wordChars('_', '_'); //allow "_" in identifiers
@@ -88,7 +92,10 @@ public class Lexer {
 	   return singleOprs.contains((char) tok.ttype);
    }
    
-   
+   public boolean matchOrderByType() {
+      return tok.ttype==StreamTokenizer.TT_WORD && orderByTypes.contains(tok.sval);
+   }
+
 //Methods to "eat" the current token
    
    /**
@@ -200,6 +207,26 @@ public class Lexer {
       return s;
    }
    
+   /**
+    * Throws an exception if the current token is not 
+    * a legal order by type, that is either "asc" or "desc". 
+    * If no order by type is specified, the default is "asc".
+    * Otherwise, returns the orderByType enum object
+    * and moves to the next token.
+    * @return the corresponding orderByType enum object
+    */
+   public OrderByType eatOrderByType() {
+      // no order by type is specified, use default type
+      if (matchDelim(',') || matchDelim(';') || !hasNext()) {
+         return OrderByType.ASC;
+      } else if (!matchOrderByType())
+         throw new BadSyntaxException();
+      String s = tok.sval;
+      nextToken();
+      return OrderByType.getOrderByType(s);
+   }
+
+
    private void nextToken() {
       try {
          tok.nextToken();
@@ -209,6 +236,10 @@ public class Lexer {
       }
    }
    
+   private boolean hasNext() {
+      return tok.ttype != StreamTokenizer.TT_EOF;
+   }
+
    private void initKeywords() {
       keywords = Arrays.asList("select", "from", "where", "and",
                                "insert", "into", "values", "delete", "update", "set", 
@@ -220,5 +251,10 @@ public class Lexer {
    private void initOperators() {
       operators = Arrays.asList("<", "<=", "=", ">=", ">", "!=", "<>");
       singleOprs = Arrays.asList('<', '>', '=', '!');
+	}
+
+    // init orderByTypes for matching and eating in the Lexer
+    private void initOrderByTypes() {
+      orderByTypes = Arrays.asList("asc", "desc");
 	}
 }
