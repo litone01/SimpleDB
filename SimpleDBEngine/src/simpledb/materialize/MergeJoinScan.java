@@ -61,6 +61,13 @@ public class MergeJoinScan implements Scan {
     * @see simpledb.query.Scan#next()
     */
    public boolean next() {
+      if (joinval == null) {
+         boolean hasmore1 = s1.next();
+         if (hasmore1) {
+            joinval = s1.getVal(fldname1);
+         }
+      }
+
       boolean hasmore2 = s2.next();
       if (hasmore2 && s2.getVal(fldname2).equals(joinval))
          return true;
