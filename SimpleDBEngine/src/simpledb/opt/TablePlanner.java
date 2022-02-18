@@ -6,6 +6,7 @@ import simpledb.record.*;
 import simpledb.query.*;
 import simpledb.metadata.*;
 import simpledb.index.planner.*;
+import simpledb.materialize.NestedLoopPlan;
 import simpledb.multibuffer.MultibufferProductPlan;
 import simpledb.plan.*;
 
@@ -66,6 +67,8 @@ class TablePlanner {
          return null;
       Plan p = makeIndexJoin(current, currsch);
       if (p == null)
+      p = makeNestedLoopJoin(current, currsch);
+      if (p == null)
          p = makeProductJoin(current, currsch);
       return p;
    }
@@ -102,6 +105,18 @@ class TablePlanner {
             Plan p = new IndexJoinPlan(current, myplan, ii, outerfield);
             p = addSelectPred(p);
             return addJoinPred(p, currsch);
+         }
+      }
+      return null;
+   }
+
+   private Plan makeNestedLoopJoin(Plan current, Schema currsch) {
+      for (String fldname : myschema.fields()) {
+         String currfield = mypred.equatesWithField(fldname);
+         if (currfield != null && currsch.hasField(currfield)) {
+            Plan mergeJoinPlan = new NestedLoopPlan(tx, myplan, current, fldname, currfield);
+            mergeJoinPlan = addSelectPred(mergeJoinPlan);
+            return addJoinPred(mergeJoinPlan, currsch);
          }
       }
       return null;
