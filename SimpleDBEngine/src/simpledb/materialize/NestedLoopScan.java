@@ -23,8 +23,8 @@ public class NestedLoopScan implements Scan {
      * @param layout  the metadata for the LHS table
      * @param tx      the current transaction
      */
-    public NestedLoopScan(Transaction tx, Scan rhsscan, String tblname, Layout layout, String fldname1,
-            String fldname2) {
+    public NestedLoopScan(Transaction tx, Scan rhsscan, String tblname, 
+            Layout layout, String fldname1, String fldname2) {
         this.tx = tx;
         this.rhsscan = rhsscan;
         this.filename = tblname + ".tbl";
@@ -127,7 +127,8 @@ public class NestedLoopScan implements Scan {
             end = filesize - 1;
         lhsscan = new ChunkScan(tx, filename, layout, nextblknum, end);
         rhsscan.beforeFirst();
-        blockNestedLoopScan = new BlockNestedLoopScan(lhsscan, rhsscan, fldname1, fldname2);
+        blockNestedLoopScan = 
+            new BlockNestedLoopScan(lhsscan, rhsscan, fldname1, fldname2);
         nextblknum = end + 1;
         return true;
     }

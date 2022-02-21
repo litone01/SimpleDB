@@ -18,7 +18,8 @@ public class NestedLoopPlan implements Plan {
      * @param rhs the plan for the RHS query
      * @param tx  the calling transaction
      */
-    public NestedLoopPlan(Transaction tx, Plan lhs, Plan rhs, String fldname1, String fldname2) {
+    public NestedLoopPlan(Transaction tx, Plan lhs, Plan rhs, 
+                            String fldname1, String fldname2) {
         this.tx = tx;
         this.lhs = lhs;
         this.rhs = new MaterializePlan(tx, rhs);
@@ -31,7 +32,8 @@ public class NestedLoopPlan implements Plan {
     public Scan open() {
         Scan rightScan = rhs.open();
         TempTable tt = copyRecordsFrom(lhs);
-        return new NestedLoopScan(tx, rightScan, tt.tableName(), tt.getLayout(), fldname1, fldname2);
+        return new NestedLoopScan(tx, rightScan, tt.tableName(), 
+                            tt.getLayout(), fldname1, fldname2);
     }
 
     /**
@@ -59,17 +61,15 @@ public class NestedLoopPlan implements Plan {
     }
 
     /**
-     * Estimates the number of output records in the product.
-     * The formula is:
-     * 
-     * <pre>
-     * R(product(p1, p2)) = R(p1) * R(p2)
-     * </pre>
-     * 
-     * @see simpledb.plan.Plan#recordsOutput()
-     */
+    * Return the number of records in the join.
+    * Assuming uniform distribution, the formula is:
+    * <pre> R(join(p1,p2)) = R(p1)*R(p2)/max{V(p1,F1),V(p2,F2)}</pre>
+    * @see simpledb.plan.Plan#recordsOutput()
+    */
     public int recordsOutput() {
-        return lhs.recordsOutput() * rhs.recordsOutput();
+        int maxvals = Math.max(lhs.distinctValues(fldname1),
+                              rhs.distinctValues(fldname2));
+        return (lhs.recordsOutput() * rhs.recordsOutput()) / maxvals;
     }
 
     /**

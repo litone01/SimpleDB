@@ -65,11 +65,9 @@ class TablePlanner {
       Predicate joinpred = mypred.joinSubPred(myschema, currsch);
       if (joinpred == null)
          return null;
-      Plan p = makeIndexJoin(current, currsch);
-      if (p == null)
-      p = makeNestedLoopJoin(current, currsch);
-      if (p == null)
-         p = makeProductJoin(current, currsch);
+      // Plan p = makeNestedLoopJoin(current, currsch);
+      // if (p == null)
+        Plan p = makeProductJoin(current, currsch);
       return p;
    }
    
@@ -114,7 +112,8 @@ class TablePlanner {
       for (String fldname : myschema.fields()) {
          String currfield = mypred.equatesWithField(fldname);
          if (currfield != null && currsch.hasField(currfield)) {
-            Plan mergeJoinPlan = new NestedLoopPlan(tx, myplan, current, fldname, currfield);
+            Plan mergeJoinPlan = 
+               new NestedLoopPlan(tx, myplan, current, fldname, currfield);
             mergeJoinPlan = addSelectPred(mergeJoinPlan);
             return addJoinPred(mergeJoinPlan, currsch);
          }
