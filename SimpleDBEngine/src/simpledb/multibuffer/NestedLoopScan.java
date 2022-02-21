@@ -5,7 +5,7 @@ import simpledb.query.*;
 public class NestedLoopScan implements Scan {
     private Scan s1, s2;
     private String fldname1, fldname2;
-    private boolean hasmore1, hasmore2;
+    // private boolean hasmore1, hasmore2;
 
     /**
     * Create a product scan having the two underlying scans.
@@ -30,7 +30,8 @@ public class NestedLoopScan implements Scan {
     public void beforeFirst() {
         s1.beforeFirst();
         s2.beforeFirst();
-        hasmore2 = s2.next();
+        // hasmore2 = s2.next();
+        s2.next();
     }
 
     /**
@@ -39,36 +40,51 @@ public class NestedLoopScan implements Scan {
     * @see simpledb.query.Scan#next()
     */
     public boolean next() { 
-        hasmore1 = s1.next();
-        if (!hasmore1) {
-            return false;
-        } 
+        // hasmore1 = s1.next();
+        // if (!hasmore1) {
+        //     return false;
+        // } 
+        // // System.out.println("[DEBUG] sid:"+ s2.getVal("sid") +"; s1:" + s1.getVal(fldname1) + "; s2:" + s2.getVal(fldname2));
 
-        while (hasmore2) {
-            // for the current record at s2, compare with each record at s1
-            while (hasmore1) {
-                System.out.println("[DEBUG] sid:"+ s2.getVal("sid") +"; s1:" + s1.getVal(fldname1) + "; s2:" + s2.getVal(fldname2));
-                // if two records equal, return true
-                if (s1.getVal(fldname1).equals(s2.getVal(fldname2))) {
-                    return true;
-                } else {
-                    // else, move to the next record at s1
-                    hasmore1 = s1.next();
-                }
+        // while (hasmore2) {
+        //     // for the current record at s2, compare with each record at s1
+        //     while (hasmore1) {
+        //         // System.out.println("[DEBUG] sid:"+ s2.getVal("sid") +"; s1:" + s1.getVal(fldname1) + "; s2:" + s2.getVal(fldname2));
+        //         // if two records equal, return true
+        //         if (s1.getVal(fldname1).equals(s2.getVal(fldname2))) {
+        //             return true;
+        //         } else {
+        //             // else, move to the next record at s1
+        //             hasmore1 = s1.next();
+        //         }
+        //     }
+        //     // no more s1
+        //     // finished comparing the current chunk of records in s1 with the current record of s2
+        //     // reset s1, move s2 to the next record
+        //     s1.beforeFirst();
+        //     hasmore2 = s2.next();
+        //     hasmore1 = s1.next();
+        // }
+        // // reset s2?
+        // s2.beforeFirst();
+
+        // // no more s2 records
+        // // finished  comparing the current chunk of records in s1 with the whole scan of s2
+        // return false;
+        Constant currS2 = s2.getVal(fldname2);
+
+        while (s1.next()) {
+            if (s1.getVal(fldname1).equals(currS2)) {
+            return true;
             }
-            // no more s1
-            // finished comparing the current chunk of records in s1 with the current record of s2
-            // reset s1, move s2 to the next record
-            s1.beforeFirst();
-            hasmore2 = s2.next();
-            hasmore1 = s1.next();
         }
-        // reset s2?
-        s2.beforeFirst();
 
-        // no more s2 records
-        // finished  comparing the current chunk of records in s1 with the whole scan of s2
-        return false;
+        boolean hasMoreS2 = s2.next();
+        if (!hasMoreS2) {
+            return false;
+        }
+        s1.beforeFirst();
+        return next();
     }
 
     /** 

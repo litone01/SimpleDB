@@ -65,7 +65,7 @@ class TablePlanner {
       Predicate joinpred = mypred.joinSubPred(myschema, currsch);
       if (joinpred == null)
          return null;
-      Plan p = makeBlockNestedJoin(current, currsch);
+      // Plan p = makeBlockNestedJoin(current, currsch);
       // if (p == null)
          // Plan p = makeProductJoin(current, currsch);
       return p;
@@ -117,7 +117,7 @@ class TablePlanner {
       for (String fldname : myschema.fields()) {
          String outerfield = mypred.equatesWithField(fldname);
          if (outerfield != null && currsch.hasField(outerfield)) {
-            Plan p = new BlockNestedLoopPlan(tx, current, myplan, outerfield, fldname);
+            Plan p = new BlockNestedLoopPlan(tx, myplan, current, fldname, outerfield);
             p = addSelectPred(p);
             return addJoinPred(p, currsch);
          }

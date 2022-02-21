@@ -20,8 +20,8 @@ public class BlockNestedLoopPlan implements Plan {
     */
     public BlockNestedLoopPlan(Transaction tx, Plan lhs, Plan rhs, String fldname1, String fldname2) {
         this.tx = tx;
-        this.lhs = new MaterializePlan(tx, lhs);
-        this.rhs = rhs;
+        this.lhs = lhs;
+        this.rhs =  new MaterializePlan(tx, rhs);
         schema.addAll(lhs.schema());
         schema.addAll(rhs.schema());
         this.fldname1 = fldname1;
@@ -40,8 +40,8 @@ public class BlockNestedLoopPlan implements Plan {
     * @see simpledb.plan.Plan#open()
     */
     public Scan open() {
-        Scan rightscan = rhs.open();
         TempTable tt = copyRecordsFrom(lhs);
+        Scan rightscan = rhs.open();
         return new BlockNestedLoopScan(tx, rightscan, tt.tableName(), tt.getLayout(), fldname1, fldname2);
     }
 

@@ -21,64 +21,43 @@ public class BlockNestedJoinTest {
 			// TestUtil.createSampleStudentDBWithoutIndex(planner, tx);
             String[][] columns1 = {{"sname", "string"}, {"majorid", "int"}, {"did", "int"}};
 
-            // Test query on non-equality operators
-            // Section A. with space between the expressions in the where clause
-            // 1. = operator
             String qry = "select sname, majorid, did from student, dept where majorid = did";
             TestUtil.executeCustomisedSelectQuery(qry, tx, planner, columns1);
+            // expected:
+            // sname   majorid did     
+            // joe     10      10
+            // max     10      10
+            // lee     10      10
+            // amy     20      20
+            // sue     20      20
+            // kim     20      20
+            // pat     20      20
+            // bob     30      30
+            // art     30      30
             
-            // // 2. > operator
-            // qry = "select sname, gradyear from student where majorid > 10";
-            // TestUtil.executeSelectQuery(qry, tx, planner);
-
-            // // 3. <= operator
-            // qry = "select sname, gradyear from student where majorid <= 50";
-            // TestUtil.executeSelectQuery(qry, tx, planner);
-
-            // // 4. >= operator
-            // qry = "select sname, gradyear from student where majorid >= 50";
-            // TestUtil.executeSelectQuery(qry, tx, planner);
-
-            // // 5. < operator
-            // qry = "select sname, gradyear from student where majorid < 50";
-			// TestUtil.executeSelectQuery(qry, tx, planner);
-
-            // // 6. > operator
-            // qry = "select sname, gradyear from student where majorid > 10";
-            // TestUtil.executeSelectQuery(qry, tx, planner);
-
-            // // 7. mixed operators and multiple predicate
-            // qry = "select sname, gradyear from student where majorid != 10 and gradyear < 2020";
-            // TestUtil.executeSelectQuery(qry, tx, planner);
-
-            // // 8. mixed operators and multiple tables
-            // qry = "select sname, gradyear from student, dept where did = majorid and dname != 'math'";
-            // TestUtil.executeSelectQuery(qry, tx, planner);
-
-            // // Section B. with no space between the expressions in the where clause
-            // // 1. = operator
-            // qry = "select sname, gradyear from student where majorid=10";
-            // TestUtil.executeSelectQuery(qry, tx, planner);
-
-            // // 2. > operator
-            // qry = "select sname, gradyear from student where majorid>10";
-            // TestUtil.executeSelectQuery(qry, tx, planner);
-
-            // // 3. <= operator
-            // qry = "select sname, gradyear from student where majorid<=50";
-            // TestUtil.executeSelectQuery(qry, tx, planner);
-
-            // // 4. <> operator
-            // qry = "select sname, gradyear from student where majorid<>10";
-            // TestUtil.executeSelectQuery(qry, tx, planner);
-
-            // // 5. mixed operators and multiple predicate
-            // qry = "select sname, gradyear from student where majorid!=10 and gradyear<2020";
-            // TestUtil.executeSelectQuery(qry, tx, planner);
-
-            // // 6. mixed operators and multiple tables
-            // qry = "select sname, gradyear from student, dept where did=majorid and dname!='math'";
-            // TestUtil.executeSelectQuery(qry, tx, planner);
+            String[][] columns2 = {{"sid", "int"}, {"sname", "string"}, {"majorid", "int"}, {"did", "int"}, {"deptid", "int"}};
+            qry = "select sid, sname, majorid, did, deptid from student, dept, course where majorid = did and did = DeptId";
+            TestUtil.executeCustomisedSelectQuery(qry, tx, planner, columns2);
+            // expected:
+            // sid     sname   majorid did     deptid  
+            // 1       joe     10      10      10
+            // 1       joe     10      10      10
+            // 3       max     10      10      10
+            // 3       max     10      10      10
+            // 9       lee     10      10      10
+            // 9       lee     10      10      10
+            // 2       amy     20      20      20
+            // 2       amy     20      20      20      
+            // 4       sue     20      20      20
+            // 4       sue     20      20      20
+            // 6       kim     20      20      20
+            // 6       kim     20      20      20
+            // 8       pat     20      20      20
+            // 8       pat     20      20      20
+            // 5       bob     30      30      30
+            // 5       bob     30      30      30
+            // 7       art     30      30      30
+            // 7       art     30      30      30
 
 			tx.commit();
 		}
