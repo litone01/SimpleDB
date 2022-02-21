@@ -66,14 +66,11 @@ class TablePlanner {
       Predicate joinpred = mypred.joinSubPred(myschema, currsch);
       if (joinpred == null)
          return null;
-      Plan p = makeIndexJoin(current, currsch);
-
-      Plan nestedLoopPlan = makeNestedLoopJoin(current, currsch);
-
-//      if (p == null)
-//         p = makeProductJoin(current, currsch);
-//      return p;
-      return nestedLoopPlan;
+      Plan p = makeNestedLoopJoin(current, currsch);
+      if (p == null)
+         p = makeProductJoin(current, currsch);
+         // System.out.println("makeNestedLoopJoin failed");
+      return p;
    }
    
    /**

@@ -21,7 +21,6 @@ public class NestedLoopJoinPlan implements Plan {
         this.p2 = p2;
 
         this.tx = tx;
-
         sch.addAll(p1.schema());
         sch.addAll(p2.schema());
     }
@@ -53,14 +52,17 @@ public class NestedLoopJoinPlan implements Plan {
     }
 
     /**
-     * Returns an estimate of the number of records
-     * in the query's output table.
+     * Return the number of records in the join.
+     * Assuming uniform distribution, the formula is:
+     * <pre> R(join(p1,p2)) = R(p1)*R(p2)/max{V(p1,F1),V(p2,F2)}</pre>
      *
      * @return the estimated number of output records
      */
     @Override
     public int recordsOutput() {
-        return p1.recordsOutput(); //not sure
+        int maxvals = Math.max(p1.distinctValues(fldname1),
+                             p2.distinctValues(fldname2));
+        return (p1.recordsOutput() * p2.recordsOutput()) / maxvals;
     }
 
     /**

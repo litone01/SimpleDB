@@ -6,19 +6,16 @@ import simpledb.tx.Transaction;
 
 
 public class NestedLoopJoinScan implements Scan {
-
     private final Scan s1;
     private final Scan s2;
     private final String fldname1;
     private final String fldname2;
-//    private final Transaction tx;
 
     public NestedLoopJoinScan(Scan s1, Scan s2, String fldname1, String fldname2) {
         this.fldname1 = fldname1;
         this.fldname2 = fldname2;
         this.s1 = s1;
         this.s2 = s2;
-//        this.tx = tx;
         beforeFirst();
     }
 
@@ -40,15 +37,6 @@ public class NestedLoopJoinScan implements Scan {
      */
     @Override
     public boolean next() {
-//        if(!s1.next() && !s2.next()) {
-//            return false;
-//        } else if(!s2.next()&&s1.next()){
-//            s2.beforeFirst();
-//            return true;
-//        } else{
-//            return true;
-//        }
-
         while(true) {
             while(s2.next()) {
                 if(s1.getVal(fldname1).equals(s2.getVal(fldname2))) {
