@@ -60,7 +60,7 @@ public class NestedLoopJoinPlan implements Plan {
      */
     @Override
     public int recordsOutput() {
-        return p1.recordsOutput(); //not sure
+        return p1.recordsOutput();
     }
 
     /**
