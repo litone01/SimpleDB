@@ -1,5 +1,9 @@
 package simpledb.test;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map.Entry;
+
 import simpledb.plan.Plan;
 import simpledb.plan.Planner;
 import simpledb.query.Scan;
@@ -18,6 +22,31 @@ public class TestUtil {
             int gradyear = scan.getInt("gradyear");
             int majorid = scan.getInt("majorid");
             System.out.println(sname + "\t" + gradyear + "\t" + majorid);
+        }
+        scan.close();
+        System.out.println("end of select query\n");
+        
+    }
+
+
+    public static void executeCustomisedSelectQuery(String qry, Transaction tx, Planner planner, String[][] columns) {
+        System.out.println(qry);
+        Plan p = planner.createQueryPlan(qry, tx);
+        Scan scan = p.open();
+        for (String[] column : columns) {
+            System.out.print(column[0] + "\t");
+        }
+        System.out.println();
+        while (scan.next()) {
+            for (String[] column : columns) {
+                String type = column[1];
+                if (type.equals("int")) {
+                    System.out.print(scan.getInt(column[0]) + "\t");
+                } else if (type.equals("string")) {
+                    System.out.print(scan.getString(column[0]) + "\t");
+                }
+            }
+            System.out.println();
         }
         scan.close();
         System.out.println("end of select query\n");

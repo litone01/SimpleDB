@@ -6,6 +6,7 @@ import simpledb.record.*;
 import simpledb.query.*;
 import simpledb.metadata.*;
 import simpledb.index.planner.*;
+import simpledb.multibuffer.BlockNestedLoopPlan;
 import simpledb.multibuffer.MultibufferProductPlan;
 import simpledb.plan.*;
 
@@ -64,9 +65,9 @@ class TablePlanner {
       Predicate joinpred = mypred.joinSubPred(myschema, currsch);
       if (joinpred == null)
          return null;
-      Plan p = makeIndexJoin(current, currsch);
-      if (p == null)
-         p = makeProductJoin(current, currsch);
+      Plan p = makeBlockNestedJoin(current, currsch);
+      // if (p == null)
+         // Plan p = makeProductJoin(current, currsch);
       return p;
    }
    
@@ -81,6 +82,11 @@ class TablePlanner {
       return new MultibufferProductPlan(tx, current, p);
    }
    
+   private Plan makeProductJoin(Plan current, Schema currsch) {
+      Plan p = makeProductPlan(current);
+      return addJoinPred(p, currsch);
+   }
+
    private Plan makeIndexSelect() {
       for (String fldname : indexes.keySet()) {
          Constant val = mypred.equatesWithConstant(fldname);
@@ -107,9 +113,16 @@ class TablePlanner {
       return null;
    }
    
-   private Plan makeProductJoin(Plan current, Schema currsch) {
-      Plan p = makeProductPlan(current);
-      return addJoinPred(p, currsch);
+   private Plan makeBlockNestedJoin(Plan current, Schema currsch) {
+      for (String fldname : myschema.fields()) {
+         String outerfield = mypred.equatesWithField(fldname);
+         if (outerfield != null && currsch.hasField(outerfield)) {
+            Plan p = new BlockNestedLoopPlan(tx, current, myplan, outerfield, fldname);
+            p = addSelectPred(p);
+            return addJoinPred(p, currsch);
+         }
+      }
+      return null;
    }
    
    private Plan addSelectPred(Plan p) {
