@@ -7,6 +7,7 @@ import simpledb.query.*;
 import simpledb.metadata.*;
 import simpledb.index.planner.*;
 import simpledb.materialize.NestedLoopPlan;
+import simpledb.materialize.MergeJoinPlan;
 import simpledb.multibuffer.MultibufferProductPlan;
 import simpledb.plan.*;
 
@@ -65,9 +66,13 @@ class TablePlanner {
       Predicate joinpred = mypred.joinSubPred(myschema, currsch);
       if (joinpred == null)
          return null;
+      Plan p = makeIndexJoin(current, currsch);
+      // If used block nested loop join as default, uncomment this
       // Plan p = makeNestedLoopJoin(current, currsch);
-      // if (p == null)
-        Plan p = makeProductJoin(current, currsch);
+      // If used merge join as default, uncomment this
+      // Plan p = makeMergeJoin(current, currsch);
+      if (p == null)
+         p = makeProductJoin(current, currsch);
       return p;
    }
    
@@ -108,6 +113,7 @@ class TablePlanner {
       return null;
    }
 
+
    private Plan makeNestedLoopJoin(Plan current, Schema currsch) {
       for (String fldname : myschema.fields()) {
          String currfield = mypred.equatesWithField(fldname);
@@ -116,6 +122,18 @@ class TablePlanner {
                new NestedLoopPlan(tx, myplan, current, fldname, currfield);
             mergeJoinPlan = addSelectPred(mergeJoinPlan);
             return addJoinPred(mergeJoinPlan, currsch);
+      }
+      return null;
+   }
+     
+   private Plan makeMergeJoin(Plan current, Schema currsch) {
+      for (String fldname : myschema.fields()) {
+         String currfield = mypred.equatesWithField(fldname);
+         if (currfield != null && currsch.hasField(currfield)) {
+            Plan mergeJoinPlan = new MergeJoinPlan(tx, myplan, current, fldname, currfield);
+            mergeJoinPlan = addSelectPred(mergeJoinPlan);
+            Plan result = addJoinPred(mergeJoinPlan, currsch);
+            return result;
          }
       }
       return null;
