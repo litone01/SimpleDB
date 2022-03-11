@@ -113,7 +113,6 @@ class TablePlanner {
       return null;
    }
 
-
    private Plan makeNestedLoopJoin(Plan current, Schema currsch) {
       for (String fldname : myschema.fields()) {
          String currfield = mypred.equatesWithField(fldname);
@@ -122,6 +121,7 @@ class TablePlanner {
                new NestedLoopPlan(tx, myplan, current, fldname, currfield);
             mergeJoinPlan = addSelectPred(mergeJoinPlan);
             return addJoinPred(mergeJoinPlan, currsch);
+         }
       }
       return null;
    }
