@@ -2,6 +2,7 @@ package simpledb.parse;
 
 import java.util.*;
 
+import simpledb.materialize.AggregationFn;
 import simpledb.query.*;
 
 /**
@@ -14,14 +15,19 @@ public class QueryData {
    private Predicate pred;
    // If no order by clause is specified, orderByClause would be an empty list.
    private List<OrderByPair> orderByClause;
+   private List<AggregationFn> aggregationFns;
+   private List<String> groupByFields;
 
    /**
     * Saves the field and table list and predicate and the order by clause.
     */
-    public QueryData(List<String> fields, Collection<String> tables, Predicate pred, List<OrderByPair> orderByClause) {
-      this.fields = fields;
+    public QueryData(List<String> fields, Collection<String> tables, List<AggregationFn> aggregationFns, Predicate pred, List<String> groupByFields ,List<OrderByPair> orderByClause) {
+       fields.addAll(groupByFields);
+       this.fields = fields;
       this.tables = tables;
+      this.aggregationFns = aggregationFns;
       this.pred = pred;
+      this.groupByFields = groupByFields;
       this.orderByClause = orderByClause;
    }
    
@@ -61,6 +67,14 @@ public class QueryData {
       return orderByClause;
    }
 
+   public List<AggregationFn> aggregationFns() {
+      return aggregationFns;
+   }
+
+   public List<String> groupByFields() {
+      return groupByFields;
+   }
+
    public String toString() {
       String result = "select ";
       for (String fldname : fields)
@@ -76,6 +90,14 @@ public class QueryData {
       if (!predstring.equals(""))
          result += " where " + predstring;
 
+      if (!groupByFields.isEmpty()) {
+         result += "group by ";
+         for (String groupby : groupByFields) {
+            result += groupby + ", ";
+         }
+         result = result.substring(0, result.length()-2); //remove final comma
+      }
+
       if (!orderByClause.isEmpty()) {
          result += "order by ";
          for (OrderByPair obp : orderByClause) {
@@ -83,6 +105,7 @@ public class QueryData {
          }
          result = result.substring(0, result.length()-2); //remove final comma
       }
+
 
       return result;
    }

@@ -2,6 +2,7 @@ package simpledb.parse;
 
 import java.util.*;
 
+import simpledb.materialize.*;
 import simpledb.query.*;
 import simpledb.record.*;
 
@@ -60,7 +61,7 @@ public class Parser {
    // Parse each field and its order into an OrderByPair,
    // and return a list of them, which forms the OrderByClause.
    public List<OrderByPair> orderByClause() {
-      List<OrderByPair> clause = new ArrayList<OrderByPair>();
+      List<OrderByPair> clause = new ArrayList<>();
       clause.add(new OrderByPair(field(), lex.eatOrderByType()));
       while (lex.matchDelim(',')) {
          lex.eatDelim(',');
@@ -73,7 +74,51 @@ public class Parser {
    
    public QueryData query() {
       lex.eatKeyword("select");
-      List<String> fields = selectList();
+//      List<String> fields = selectList();
+      List<String> fields = new ArrayList<>();
+      List<AggregationFn> aggregationFns = new ArrayList<>();
+
+      while(true){
+         String field;
+         if(lex.matchAggregationFn()){
+            String aggregate = lex.eatAggregationFn();
+            lex.eatDelim('(');
+            field = field();
+            lex.eatDelim(')');
+
+            AggregationFn aggregationFn = null;
+            switch(aggregate){
+               case "min":
+                  aggregationFn = new MinFn(field);
+                  break;
+               case "max":
+                  aggregationFn = new MaxFn(field);
+                  break;
+               case "avg":
+                  aggregationFn = new AvgFn(field);
+                  break;
+               case "sum":
+                  aggregationFn = new SumFn(field);
+                  break;
+               case "count":
+                  aggregationFn = new CountFn(field);
+                  break;
+            }
+
+            aggregationFns.add(aggregationFn);
+         } else {
+            field = field();
+//            fields.add(field);
+         }
+         fields.add(field);
+         if(!lex.matchDelim(',')){
+            break;
+         }
+         lex.eatDelim(',');
+      }
+
+//      List<String> fields = selectList();
+
       lex.eatKeyword("from");
       Collection<String> tables = tableList();
       Predicate pred = new Predicate();
@@ -81,15 +126,24 @@ public class Parser {
          lex.eatKeyword("where");
          pred = predicate();
       }
+
+      //group by
+      List<String> groupByFields = new ArrayList<>();
+      if (lex.matchKeyword("group")) {
+         lex.eatKeyword("group");
+         lex.eatKeyword("by");
+         groupByFields = selectList();
+      }
+
       // Optional to have an order by clause
-      List<OrderByPair> orderByClause = new ArrayList<OrderByPair>();
+      List<OrderByPair> orderByClause = new ArrayList<>();
       if (lex.matchKeyword("order")) {
          lex.eatKeyword("order");
          lex.eatKeyword("by");
          orderByClause = orderByClause();
       }
 
-      return new QueryData(fields, tables, pred, orderByClause);
+      return new QueryData(fields, tables, aggregationFns, pred, groupByFields, orderByClause);
    }
    
    private List<String> selectList() {
