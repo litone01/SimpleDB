@@ -137,6 +137,23 @@ public class Predicate {
       return null;
    }
 
+   /**
+    * Determine if there is a term 
+    * where F1 is the specified field and F2 is another field.
+    * If so, the method returns this term
+    * If not, the method returns null.
+    * @param fldname the name of the field
+    * @return the term, or null
+    */
+   public Term getTermWithFieldThatEquates(String fldname) {
+      for (Term t : terms) {
+         String s = t.equatesWithField(fldname);
+         if (s != null)
+            return t;
+      }
+      return null;
+   }
+
    public String toString() {
       Iterator<Term> iter = terms.iterator();
       if (!iter.hasNext()) 
