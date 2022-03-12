@@ -1,23 +1,37 @@
 package simpledb.test;
 
+import java.util.LinkedHashMap;
+
 import simpledb.plan.Plan;
 import simpledb.plan.Planner;
 import simpledb.query.Scan;
 import simpledb.tx.Transaction;
 
 public class TestUtil {
-
-    // TODO: accept field name and type as parameters
-    public static void executeSelectQuery(String qry, Transaction tx, Planner planner) {
+    // Note that only for type, only INT and STRING are supported and the spelling must be exact, i.e. all CAPS
+    public static void executeSelectQuery(String qry, Transaction tx, Planner planner, LinkedHashMap<String, String> fieldNameAndTypes) {
         System.out.println(qry);
         Plan p = planner.createQueryPlan(qry, tx);
         Scan scan = p.open();
-        System.out.println("sname" + "\t" + "gradyear" + "\t" + "majorid");
+        // print header
+        for (String fieldName : fieldNameAndTypes.keySet()) {
+            System.out.print(fieldName + "\t");
+        }
+        System.out.println();
+
+        // print data based on field name and type
         while (scan.next()) {
-            String sname = scan.getString("sname");
-            int gradyear = scan.getInt("gradyear");
-            int majorid = scan.getInt("majorid");
-            System.out.println(sname + "\t" + gradyear + "\t" + majorid);
+            for (String fieldName : fieldNameAndTypes.keySet()) {
+                String fieldType = fieldNameAndTypes.get(fieldName);
+                if (fieldType.equals("INT")) {
+                    System.out.print(scan.getInt(fieldName) + "\t");
+                } else if (fieldType.equals("STRING")) {
+                    System.out.print(scan.getString(fieldName) + "\t");
+                } else {
+                    System.out.print("unknown type" + "\t");
+                }
+            }
+            System.out.println();
         }
         scan.close();
         System.out.println("end of select query\n");
