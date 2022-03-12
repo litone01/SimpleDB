@@ -4,9 +4,13 @@ import simpledb.multibuffer.BufferNeeds;
 import simpledb.multibuffer.ChunkScan;
 import simpledb.query.Constant;
 import simpledb.query.Scan;
+import simpledb.query.Operator;
 import simpledb.record.Layout;
 import simpledb.tx.Transaction;
 
+/**
+ * This class is a part of the block nested loop join implementation.
+ */
 public class NestedLoopScan implements Scan {
     private Transaction tx;
     private Scan lhsscan = null, rhsscan, blockNestedLoopScan;
@@ -14,21 +18,23 @@ public class NestedLoopScan implements Scan {
     private Layout layout;
     private int chunksize, nextblknum, filesize;
     private String fldname1, fldname2;
+    private Operator opr;
 
     /**
      * Creates the scan class for the nested loop scan.
-     * 
-     * @param lhsscan the RHS scan
+     * Note that LHS table is materialized into a temp table so that we can use access by chunks.
+     * @param rhsscan the RHS scan
      * @param tblname the LHS table name
      * @param layout  the metadata for the LHS table
      * @param tx      the current transaction
      */
     public NestedLoopScan(Transaction tx, Scan rhsscan, String tblname, 
-            Layout layout, String fldname1, String fldname2) {
+            Layout layout, String fldname1, String fldname2, Operator opr) {
         this.tx = tx;
         this.rhsscan = rhsscan;
         this.filename = tblname + ".tbl";
         this.layout = layout;
+        this.opr = opr;
         this.fldname1 = fldname1;
         this.fldname2 = fldname2;
         filesize = tx.size(filename);
@@ -117,6 +123,11 @@ public class NestedLoopScan implements Scan {
         return blockNestedLoopScan.hasField(fldname);
     }
 
+    /**
+     * This is where a lot of work is done. 
+     * Note that we use BlockNestedLoopScan by default to do the work.
+     * @return
+     */
     private boolean useNextChunk() {
         if (nextblknum >= filesize)
             return false;
@@ -128,7 +139,7 @@ public class NestedLoopScan implements Scan {
         lhsscan = new ChunkScan(tx, filename, layout, nextblknum, end);
         rhsscan.beforeFirst();
         blockNestedLoopScan = 
-            new BlockNestedLoopScan(lhsscan, rhsscan, fldname1, fldname2);
+            new BlockNestedLoopScan(lhsscan, rhsscan, fldname1, fldname2, opr);
         nextblknum = end + 1;
         return true;
     }

@@ -66,13 +66,14 @@ class TablePlanner {
       Predicate joinpred = mypred.joinSubPred(myschema, currsch);
       if (joinpred == null)
          return null;
-      Plan p = makeIndexJoin(current, currsch);
+      // Plan p = makeIndexJoin(current, currsch);
       // If used block nested loop join as default, uncomment this
-      // Plan p = makeNestedLoopJoin(current, currsch);
+      Plan p = makeNestedLoopJoin(current, currsch);
       // If used merge join as default, uncomment this
       // Plan p = makeMergeJoin(current, currsch);
-      if (p == null)
-         p = makeProductJoin(current, currsch);
+      // if (p == null)
+      //    p = makeProductJoin(current, currsch);
+      // Plan p = makeProductJoin(current, currsch);
       return p;
    }
    
@@ -113,14 +114,17 @@ class TablePlanner {
       return null;
    }
 
+   // Note that myplan is the LHS of the join, and current is the RHS of the join
+   // Similarly, fldname is the LHS field name, while the currfield is the RHS field name
    private Plan makeNestedLoopJoin(Plan current, Schema currsch) {
       for (String fldname : myschema.fields()) {
          String currfield = mypred.equatesWithField(fldname);
          if (currfield != null && currsch.hasField(currfield)) {
-            Plan mergeJoinPlan = 
-               new NestedLoopPlan(tx, myplan, current, fldname, currfield);
-            mergeJoinPlan = addSelectPred(mergeJoinPlan);
-            return addJoinPred(mergeJoinPlan, currsch);
+            Operator opr = mypred.getMatchedOperatorByTermFieldNames(fldname, currfield);
+            Plan nestedLoopJoinPlan = 
+               new NestedLoopPlan(tx, myplan, current, fldname, currfield, opr);
+            nestedLoopJoinPlan = addSelectPred(nestedLoopJoinPlan);
+            return addJoinPred(nestedLoopJoinPlan, currsch);
          }
       }
       return null;

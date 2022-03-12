@@ -12,6 +12,9 @@ import simpledb.record.*;
  */
 public class Predicate {
    private List<Term> terms = new ArrayList<Term>();
+   // We assume that a query with where clause like "t1.a = t2.b and t2.b > t1.a",
+   //    where pair of 'a' and 'b' fields are used more than 1 time, 
+   //    is invalid.
 
    /**
     * Create an empty predicate, corresponding to "true".
@@ -133,6 +136,56 @@ public class Predicate {
          String s = t.equatesWithField(fldname);
          if (s != null)
             return s;
+      }
+      return null;
+   }
+
+   /**
+    * Returns the matched operator for the given pair of fields in the term.
+    * Before this method is called, 
+    *    equatesWithField() should have been called to obtain a corresponding field name.
+    * Thus, we assume that there must be a matching term and operator when this method is called.
+    * @param lhsFieldName the name of the LHS field used in the term
+    * @param rhsFieldName the name of the RHS field used in the term
+    * @return the matched operator
+    * @throws RuntimeException if unable to find a matched operator or a matched term
+    */
+   public Operator getMatchedOperatorByTermFieldNames
+      (String lhsFieldName, String rhsFieldName) {
+         Term matchedTerm = getTermWithFieldThatEquates(lhsFieldName, rhsFieldName);
+         if (matchedTerm == null) {
+            throw new RuntimeException("Error: cannot find matching term"); 
+         }
+
+         Operator matchedOperator = matchedTerm.getOperator();
+         if (matchedTerm.getLHSAsFieldName().equals(lhsFieldName) 
+         && matchedTerm.getRHSAsFieldName().equals(rhsFieldName)) {
+            return matchedOperator;
+         } else if (matchedTerm.getLHSAsFieldName().equals(rhsFieldName) 
+         && matchedTerm.getRHSAsFieldName().equals(lhsFieldName)) {
+            return matchedOperator.getReverseOperator();
+         } else {
+            throw new RuntimeException("Error: cannot find matching operator");
+         }
+   }
+
+
+   /**
+    * Helper method.
+    * Determine if there is a term 
+    * where F1 and F2 are the specified fields
+    * If so, the method returns this term
+    * If not, the method returns null.
+    * @param fieldName1 the name of the 1st field
+    * @param fieldName2 the name of the 2nd field
+    * @return the term, or null
+    */
+   private Term getTermWithFieldThatEquates(String fieldName1, String fieldName2) {
+      for (Term t : terms) {
+         String s = t.equatesWithField(fieldName2);
+         if (s != null && s.equals(fieldName1)) {
+            return t;
+         } 
       }
       return null;
    }

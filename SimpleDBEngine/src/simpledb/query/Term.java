@@ -134,7 +134,36 @@ public class Term {
       return lhs.appliesTo(sch) && rhs.appliesTo(sch);
    }
    
+   /**
+    * Return the operator of the this term.
+    */
+   public Operator getOperator() {
+      return opr;
+   }
+
+   /**
+    * Return the LHS expression of the term as a field name in string, if applicable.
+    * Otherwise, return null.
+    */
+    public String getLHSAsFieldName() {
+      if (lhs.isFieldName())
+         return lhs.asFieldName();
+      else
+         return null;
+   }
+
+   /**
+    * Return the RHS expression of the term as a field name in string, if applicable.
+    * Otherwise, return null.
+    */
+    public String getRHSAsFieldName() {
+      if (rhs.isFieldName())
+         return rhs.asFieldName();
+      else
+         return null;
+   }
+
    public String toString() {
-      return lhs.toString() + "=" + rhs.toString();
+      return lhs.toString() + opr.toString() + rhs.toString();
    }
 }
