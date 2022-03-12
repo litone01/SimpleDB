@@ -10,6 +10,7 @@ public class NestedLoopPlan implements Plan {
     private Plan lhs, rhs;
     private Schema schema = new Schema();
     private String fldname1, fldname2;
+    private Operator opr;
 
     /**
      * Creates a nested loop plan for the specified queries.
@@ -19,21 +20,28 @@ public class NestedLoopPlan implements Plan {
      * @param tx  the calling transaction
      */
     public NestedLoopPlan(Transaction tx, Plan lhs, Plan rhs, 
-                            String fldname1, String fldname2) {
+                            String fldname1, String fldname2, Operator opr) {
         this.tx = tx;
         this.lhs = lhs;
         this.rhs = new MaterializePlan(tx, rhs);
         this.fldname1 = fldname1;
         this.fldname2 = fldname2;
+        this.opr = opr;
         schema.addAll(lhs.schema());
         schema.addAll(rhs.schema());
     }
 
+    /**
+     * We use the block nested loop join algorithm here.
+     * 1. Convert the LHS table into chunks by materializing it into a temp table.
+     * 2. Opens a scan on the RHS table.
+     * 3. Create and return a new NestedLoopScan object.
+     */
     public Scan open() {
         Scan rightScan = rhs.open();
         TempTable tt = copyRecordsFrom(lhs);
         return new NestedLoopScan(tx, rightScan, tt.tableName(), 
-                            tt.getLayout(), fldname1, fldname2);
+                            tt.getLayout(), fldname1, fldname2, opr);
     }
 
     /**

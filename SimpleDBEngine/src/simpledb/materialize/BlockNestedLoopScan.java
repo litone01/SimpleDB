@@ -2,10 +2,12 @@ package simpledb.materialize;
 
 import simpledb.query.Constant;
 import simpledb.query.Scan;
+import simpledb.query.Operator;
 
 public class BlockNestedLoopScan implements Scan {
    private Scan s1, s2;
    private String fldname1, fldname2;
+   private Operator opr;
 
    /**
     * Create a block nested loop scan.
@@ -14,11 +16,12 @@ public class BlockNestedLoopScan implements Scan {
     * @param s2 the RHS scan
     */
    public BlockNestedLoopScan(Scan s1, Scan s2, 
-         String fldname1, String fldname2) {
+         String fldname1, String fldname2, Operator opr) {
       this.s1 = s1;
       this.s2 = s2;
       this.fldname1 = fldname1;
       this.fldname2 = fldname2;
+      this.opr = opr;
       beforeFirst();
    }
 
@@ -49,7 +52,7 @@ public class BlockNestedLoopScan implements Scan {
       Constant currS2 = s2.getVal(fldname2);
 
       while (s1.next()) {
-         if (s1.getVal(fldname1).equals(currS2)) {
+         if (opr.check(s1.getVal(fldname1), currS2)) {
             return true;
          }
       }

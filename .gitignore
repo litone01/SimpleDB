@@ -57,3 +57,5 @@ recordtest/
 
 #ignore all db files
 db_*/
+#ignore all temp files
+temp_*/
