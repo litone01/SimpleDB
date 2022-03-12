@@ -26,27 +26,24 @@ public class HashJoinPlan implements Plan {
       this.p2 = p2;
       this.fldname1 = fldname1;
       this.fldname2 = fldname2;
-      NUM_PARTITION = tx.availableBuffs() - 2;
-      // available = tx.availableBuffs() - 2;
-      // NUM_PARTITION = BufferNeeds.bestFactor(available, filesize);
+      // Assumption: We use 1 input buffer. No output buffer is used as we use iterator.
+      NUM_PARTITION = tx.availableBuffs() - 1;
       schema.addAll(p1.schema());
       schema.addAll(p2.schema());
    }
 
    /**
     * This method is where most of the action is.
-    * Up to 2 sorted temporary tables are created,
-    * and are passed into SortScan for final merging.
     * @see simpledb.plan.Plan#open()
     */
     public Scan open() {
       Scan src1 = p1.open();
-      HashJoinParition partitionPlan1 = new HashJoinParition(tx, p1, fldname1, NUM_PARTITION);
+      HashJoinPartition partitionPlan1 = new HashJoinPartition(tx, p1, fldname1, NUM_PARTITION);
       Map<Integer, TempTable> partition1 = partitionPlan1.generatePartition(src1);
       src1.close();
 
       Scan src2 = p2.open();
-      HashJoinParition partitionPlan2 = new HashJoinParition(tx, p2, fldname2, NUM_PARTITION);
+      HashJoinPartition partitionPlan2 = new HashJoinPartition(tx, p2, fldname2, NUM_PARTITION);
       Map<Integer, TempTable> partition2 = partitionPlan2.generatePartition(src2);
       src2.close();
       return new HashJoinScan(partition1, partition2, p2, fldname1, fldname2);

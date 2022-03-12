@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import simpledb.plan.Plan;
 import simpledb.query.Constant;
@@ -57,10 +58,8 @@ public class HashJoinScan implements Scan {
      * @see simpledb.query.Scan#next()
      */
     public boolean next() {
-        if (inMemoryHashMap.size() == 0) {
-            return false;
-        }
 
+        // match s1 with all matching s2
         while (matchingS2 != null && positionS2 < matchingS2.size()) {
             if (s1.getVal(fldname1).equals(matchingS2.get(positionS2).get(fldname2))) {
                 currentS2Val = matchingS2.get(positionS2);
@@ -70,6 +69,7 @@ public class HashJoinScan implements Scan {
             positionS2++;
         }
 
+        // probe
         hasmore1 = s1.next();
 
         while (hasmore1) {
@@ -84,33 +84,47 @@ public class HashJoinScan implements Scan {
             return next();
         }
         s1.close();
+
+        // check if there is more s2 partitions
         boolean hasNextPartition = buildNextInMemoryHashTable();
-        if (!hasNextPartition) return false;
+        if (!hasNextPartition) {
+            return false;
+        }
         return next();
     }
 
     /**
      * Build in memory hash table for the next partition
+     * Assumption: We will always have a buffer size that is big enough to build an in-memory hash table.
+     * In the case that we don't have such buffer size, we will use other join algorithm instead of hash join.
      */
     private boolean buildNextInMemoryHashTable() {
         inMemoryHashMap = new HashMap<>();
         TempTable tempTable2 = null;
-        Integer hash2 = null;
 
         if (temps2.size() == 0){
             return false;
         }
 
-        for (Integer key : temps2.keySet()) {
+        Set<Integer> alltemps2keys = temps2.keySet();
+
+        // build hash table for first s2 partition that has a matching s1 partition
+        for (Integer key : alltemps2keys) {
+
             TempTable tempTable1 = temps1.get(key);
+            // skip building if current s2 partition do not have a matching s1 partition
             if (tempTable1 != null) {
-                hash2 = key;
+
                 tempTable2 = temps2.get(key);
                 s1 = (UpdateScan) tempTable1.open();
+                temps2.remove(key);
                 break;
+            } else {
+
+                temps2.remove(key);
             }
+
         }
-        temps2.remove(hash2, tempTable2);
 
         s2 = (UpdateScan) tempTable2.open();
         s2.beforeFirst();

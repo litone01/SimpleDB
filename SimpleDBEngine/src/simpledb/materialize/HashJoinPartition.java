@@ -9,7 +9,7 @@ import simpledb.query.UpdateScan;
 import simpledb.record.Schema;
 import simpledb.tx.Transaction;
 
-public class HashJoinParition {
+public class HashJoinPartition {
 
     private Transaction tx;
     private Plan p;
@@ -27,7 +27,7 @@ public class HashJoinParition {
      * @param fldname      fldname in the join predicate
      * @param numPartition number of partition, usually set to available buffer - 2
      */
-    public HashJoinParition(Transaction tx, Plan p, String fldname, int numPartition) {
+    public HashJoinPartition(Transaction tx, Plan p, String fldname, int numPartition) {
         this.tx = tx;
         this.p = p;
         this.fldname = fldname;
@@ -39,7 +39,7 @@ public class HashJoinParition {
      * Generate the partitions for hash join
      * 
      * @param p            the plan for the underlying query
-     * @param src           the scan
+     * @param src           scan for one of the table
      */
     public Map<Integer, TempTable>  generatePartition(Scan src) {
         tempTables = new HashMap<>();
@@ -57,6 +57,12 @@ public class HashJoinParition {
         return tempTables;
     }
 
+    /**
+     * copy records to the correct partition
+     * 
+     * @param p            the plan for the underlying query
+     * @param src           scan for one of the table
+     */
     private boolean copyToPartition(Plan p, Scan src) {
         Schema sch = p.schema();
         int currentHash = src.getVal(fldname).hashCode() % numPartition;
