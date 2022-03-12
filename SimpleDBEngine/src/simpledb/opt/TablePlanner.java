@@ -120,7 +120,7 @@ class TablePlanner {
       for (String fldname : myschema.fields()) {
          String currfield = mypred.equatesWithField(fldname);
          if (currfield != null && currsch.hasField(currfield)) {
-            Operator opr = determineCurrentOperator(fldname, currfield);
+            Operator opr = mypred.getMatchedOperatorByTermFieldNames(fldname, currfield);
             Plan nestedLoopJoinPlan = 
                new NestedLoopPlan(tx, myplan, current, fldname, currfield, opr);
             nestedLoopJoinPlan = addSelectPred(nestedLoopJoinPlan);
@@ -162,17 +162,5 @@ class TablePlanner {
          return new SelectPlan(p, joinpred);
       else
          return p;
-   }
-
-   private Operator determineCurrentOperator(String lhsFieldName, String rhsFieldName) {
-      Term currterm = mypred.getTermWithFieldThatEquates(rhsFieldName);
-      Operator currOp = currterm.getOperator();
-      if (currterm.getLHSAsFieldName().equals(lhsFieldName) && currterm.getRHSAsFieldName().equals(rhsFieldName)) {
-         return currOp;
-      } else if (currterm.getLHSAsFieldName().equals(rhsFieldName) && currterm.getRHSAsFieldName().equals(lhsFieldName)) {
-         return currOp.getReverseOperator();
-      } else {
-         throw new RuntimeException("Error in determining current operator");
-      }
    }
 }

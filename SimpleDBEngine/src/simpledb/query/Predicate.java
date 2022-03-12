@@ -12,6 +12,10 @@ import simpledb.record.*;
  */
 public class Predicate {
    private List<Term> terms = new ArrayList<Term>();
+   // Stores the terms that have been used for join, 
+   //    so that we will not use them again.
+   // Example use case: where clause is "t1.a = t2.b and t1.a > t2.b".
+   private HashSet<Term> usedTermsForJoins = new HashSet<Term>();
 
    /**
     * Create an empty predicate, corresponding to "true".
@@ -138,6 +142,37 @@ public class Predicate {
    }
 
    /**
+    * Returns the matched operator for the given pair of fields in the term.
+    * Before this method is called, 
+    *    equatesWithField() should have been called to obtain a corresponding field name.
+    * Thus, we assume that there must be a matching term and operator when this method is called.
+    * @param lhsFieldName the name of the LHS field used in the term
+    * @param rhsFieldName the name of the RHS field used in the term
+    * @return the matched operator
+    * @throws RuntimeException if unable to find a matched operator or a matched term
+    */
+   public Operator getMatchedOperatorByTermFieldNames
+      (String lhsFieldName, String rhsFieldName) {
+         Term matchedTerm = getTermWithFieldThatEquates(rhsFieldName);
+         if (matchedTerm == null) {
+            throw new RuntimeException("Error: cannot find matching term"); 
+         }
+
+         Operator matchedOperator = matchedTerm.getOperator();
+         if (matchedTerm.getLHSAsFieldName().equals(lhsFieldName) 
+         && matchedTerm.getRHSAsFieldName().equals(rhsFieldName)) {
+            return matchedOperator;
+         } else if (matchedTerm.getLHSAsFieldName().equals(rhsFieldName) 
+         && matchedTerm.getRHSAsFieldName().equals(lhsFieldName)) {
+            return matchedOperator.getReverseOperator();
+         } else {
+            throw new RuntimeException("Error: cannot find matching operator");
+         }
+   }
+
+
+   /**
+    * Helper method.
     * Determine if there is a term 
     * where F1 is the specified field and F2 is another field.
     * If so, the method returns this term
@@ -145,13 +180,19 @@ public class Predicate {
     * @param fldname the name of the field
     * @return the term, or null
     */
-   public Term getTermWithFieldThatEquates(String fldname) {
+   private Term getTermWithFieldThatEquates(String fldname) {
+      Term res = null;
       for (Term t : terms) {
          String s = t.equatesWithField(fldname);
-         if (s != null)
-            return t;
+         // If there is matching term, 
+         //    and it has not been used for join, return it
+         if (s != null && !usedTermsForJoins.contains(t)) {
+            res = t;
+            usedTermsForJoins.add(res);
+            break;
+         } 
       }
-      return null;
+      return res;
    }
 
    public String toString() {
