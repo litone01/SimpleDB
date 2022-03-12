@@ -12,7 +12,6 @@ import simpledb.record.*;
  */
 public class Predicate {
    private List<Term> terms = new ArrayList<Term>();
-   //    so that we will not use them again.
    // We assume that a query with where clause like "t1.a = t2.b and t2.b > t1.a",
    //    where pair of 'a' and 'b' fields are used more than 1 time, 
    //    is invalid.
