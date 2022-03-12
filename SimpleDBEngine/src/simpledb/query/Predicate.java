@@ -14,8 +14,9 @@ public class Predicate {
    private List<Term> terms = new ArrayList<Term>();
    // Stores the terms that have been used for join, 
    //    so that we will not use them again.
-   // Example use case: where clause is "t1.a = t2.b and t1.a > t2.b".
-   private HashSet<Term> usedTermsForJoins = new HashSet<Term>();
+   // We assume that a query with where clause like "t1.a = t2.b and t2.b > t1.a",
+   //    where pair of 'a' and 'b' fields are used more than 1 time, 
+   //    is invalid.
 
    /**
     * Create an empty predicate, corresponding to "true".
@@ -153,7 +154,7 @@ public class Predicate {
     */
    public Operator getMatchedOperatorByTermFieldNames
       (String lhsFieldName, String rhsFieldName) {
-         Term matchedTerm = getTermWithFieldThatEquates(rhsFieldName);
+         Term matchedTerm = getTermWithFieldThatEquates(lhsFieldName, rhsFieldName);
          if (matchedTerm == null) {
             throw new RuntimeException("Error: cannot find matching term"); 
          }
@@ -164,6 +165,8 @@ public class Predicate {
             return matchedOperator;
          } else if (matchedTerm.getLHSAsFieldName().equals(rhsFieldName) 
          && matchedTerm.getRHSAsFieldName().equals(lhsFieldName)) {
+            // TODO: remove this println in final submission
+            System.out.println("matched term is reversed");
             return matchedOperator.getReverseOperator();
          } else {
             throw new RuntimeException("Error: cannot find matching operator");
@@ -177,22 +180,19 @@ public class Predicate {
     * where F1 is the specified field and F2 is another field.
     * If so, the method returns this term
     * If not, the method returns null.
-    * @param fldname the name of the field
+    * @param rhsFieldName the name of the field
     * @return the term, or null
     */
-   private Term getTermWithFieldThatEquates(String fldname) {
-      Term res = null;
+   private Term getTermWithFieldThatEquates(String lhsFieldName, String rhsFieldName) {
       for (Term t : terms) {
-         String s = t.equatesWithField(fldname);
+         String s = t.equatesWithField(rhsFieldName);
          // If there is matching term, 
          //    and it has not been used for join, return it
-         if (s != null && !usedTermsForJoins.contains(t)) {
-            res = t;
-            usedTermsForJoins.add(res);
-            break;
+         if (s.equals(lhsFieldName)) {
+            return t;
          } 
       }
-      return res;
+      return null;
    }
 
    public String toString() {
