@@ -165,8 +165,6 @@ public class Predicate {
             return matchedOperator;
          } else if (matchedTerm.getLHSAsFieldName().equals(rhsFieldName) 
          && matchedTerm.getRHSAsFieldName().equals(lhsFieldName)) {
-            // TODO: remove this println in final submission
-            System.out.println("matched term is reversed");
             return matchedOperator.getReverseOperator();
          } else {
             throw new RuntimeException("Error: cannot find matching operator");
@@ -177,18 +175,17 @@ public class Predicate {
    /**
     * Helper method.
     * Determine if there is a term 
-    * where F1 is the specified field and F2 is another field.
+    * where F1 and F2 are the specified fields
     * If so, the method returns this term
     * If not, the method returns null.
-    * @param rhsFieldName the name of the field
+    * @param fieldName1 the name of the 1st field
+    * @param fieldName2 the name of the 2nd field
     * @return the term, or null
     */
-   private Term getTermWithFieldThatEquates(String lhsFieldName, String rhsFieldName) {
+   private Term getTermWithFieldThatEquates(String fieldName1, String fieldName2) {
       for (Term t : terms) {
-         String s = t.equatesWithField(rhsFieldName);
-         // If there is matching term, 
-         //    and it has not been used for join, return it
-         if (s.equals(lhsFieldName)) {
+         String s = t.equatesWithField(fieldName2);
+         if (s != null && s.equals(fieldName1)) {
             return t;
          } 
       }

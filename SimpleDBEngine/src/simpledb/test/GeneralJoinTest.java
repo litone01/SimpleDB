@@ -17,7 +17,7 @@ public class GeneralJoinTest {
             
             // NOTE: COMMENT OUT this once the first one! Dont create the tables again!
             // Also, check if the join method has been set the correct join algorithm
-            // TestUtil.createSampleStudentDBWithoutIndex(planner, tx);
+            TestUtil.createSampleStudentDBWithoutIndex(planner, tx);
             
             // LinkedHashMap (we want to preserve insertion order) for fieldName and its corresponding type
             // In this test, we have:
@@ -67,9 +67,9 @@ public class GeneralJoinTest {
             // = and >, two predicates, did and sid order are swapped
             qry = "select sid, sname, majorid, did, dname from student, dept where majorid = did and did > sid";
             TestUtil.executeSelectQuery(qry, tx, planner, fieldNameAndType);
-            // = and <, three predicates
-            qry = "select sid, sname, majorid, did, dname from student, dept where majorid = did and did < sid and sid = did";
-            TestUtil.executeSelectQuery(qry, tx, planner, fieldNameAndType);
+            // = and <, three predicates, Invalid case
+            // qry = "select sid, sname, majorid, did, dname from student, dept where majorid = did and did < sid and sid = did";
+            // TestUtil.executeSelectQuery(qry, tx, planner, fieldNameAndType);
             
             // Section D. with multiple tables and mixed join operators
             // 1. sid: INT; 2.sname: STRING; 3. majorid: INT; 4. did: INT; 5. dname: STRING; 6. title: STRING
@@ -131,6 +131,22 @@ public class GeneralJoinTest {
             qry = "select sname, grade, sid, studentid, sectionid, sectid, courseid, cid, title, deptid, did, dname from student, enroll, section, course, dept where sid = studentid and sectionid = sectid and courseid = cid and deptid = did";
             TestUtil.executeSelectQuery(qry, tx, planner, allFiveTables);
 
+            // =, five predicate, five tables (student, enroll, section, course, dept), and a non-join related predicate
+            qry = "select sname, grade, sid, studentid, sectionid, sectid, courseid, cid, title, deptid, did, dname from student, enroll, section, course, dept where sid = studentid and sectionid = sectid and courseid = cid and deptid = did and deptid > 20";
+            TestUtil.executeSelectQuery(qry, tx, planner, allFiveTables);
+
+            // mixed operators, five tables
+            qry = "select sname, grade, sid, studentid, sectionid, sectid, courseid, cid, title, deptid, did, dname from student, enroll, section, course, dept where sid = studentid and sectionid < sectid and courseid >= cid and deptid != did and sid = 1";
+            TestUtil.executeSelectQuery(qry, tx, planner, allFiveTables);
+
+            // sname: STRING; grade: STRING;
+            LinkedHashMap<String, String> snameAndGrade = new LinkedHashMap<String, String>(); 
+            snameAndGrade.put("sname", "STRING");
+            snameAndGrade.put("grade", "STRING");
+            // selected fields are not used in where clause
+            qry = "select sname, grade from student, enroll, section, course, dept where sid = studentid and sectionid = sectid and courseid = cid and deptid = did";
+            TestUtil.executeSelectQuery(qry, tx, planner, snameAndGrade);
+            
             tx.commit();
         }
         catch(Exception e) {
