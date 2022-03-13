@@ -22,7 +22,7 @@ public class QueryData {
     * Saves the field and table list and predicate and the order by clause.
     */
     public QueryData(List<String> fields, Collection<String> tables, List<AggregationFn> aggregationFns, Predicate pred, List<String> groupByFields ,List<OrderByPair> orderByClause) {
-       fields.addAll(groupByFields);
+//       fields.addAll(groupByFields);
        this.fields = fields;
       this.tables = tables;
       this.aggregationFns = aggregationFns;
