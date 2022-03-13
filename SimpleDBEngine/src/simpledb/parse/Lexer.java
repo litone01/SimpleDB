@@ -3,8 +3,9 @@ package simpledb.parse;
 import java.util.*;
 import java.io.*;
 
+import simpledb.materialize.AggregationFn;
 import simpledb.query.Operator;
-import simpledb.query.OrderByType;;
+import simpledb.query.OrderByType;
 
 /**
  * The lexical analyzer.
@@ -17,6 +18,7 @@ public class Lexer {
    private Collection<Character> singleOprs;
    // add order by type list for supporting order by clause
    private Collection<String> orderByTypes;
+   private Collection<String> aggregateFns;
    private StreamTokenizer tok;
    
    /**
@@ -27,6 +29,7 @@ public class Lexer {
       initKeywords();
       initOperators();
       initOrderByTypes();
+      initAggregateFns();
       tok = new StreamTokenizer(new StringReader(s));
       tok.ordinaryChar('.');   //disallow "." in identifiers
       tok.wordChars('_', '_'); //allow "_" in identifiers
@@ -94,6 +97,10 @@ public class Lexer {
    
    public boolean matchOrderByType() {
       return tok.ttype==StreamTokenizer.TT_WORD && orderByTypes.contains(tok.sval);
+   }
+
+   public boolean matchAggregationFn() {
+      return tok.ttype==StreamTokenizer.TT_WORD && aggregateFns.contains(tok.sval);
    }
 
 //Methods to "eat" the current token
@@ -226,6 +233,15 @@ public class Lexer {
       return OrderByType.getOrderByType(s);
    }
 
+   public String eatAggregationFn() {
+      if(!matchAggregationFn()) {
+         throw new BadSyntaxException();
+      }
+      String s = tok.sval;
+      nextToken();
+      return s;
+   }
+
 
    private void nextToken() {
       try {
@@ -257,4 +273,9 @@ public class Lexer {
     private void initOrderByTypes() {
       orderByTypes = Arrays.asList("asc", "desc");
 	}
+
+   // init aggregation functions for matching and eating in the Lexer
+   private void initAggregateFns() {
+      aggregateFns = Arrays.asList("min", "max", "avg", "count", "sum");
+   }
 }
