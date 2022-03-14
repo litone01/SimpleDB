@@ -98,4 +98,11 @@ public class GroupByPlan implements Plan {
    public Schema schema() {
       return sch;
    }
+
+   /**
+    * Return the string representation of this query plan
+    */
+    public String toString() {
+      return "( " + p.toString() + " group by " + groupfields.toString() + " )";
+  }
 }

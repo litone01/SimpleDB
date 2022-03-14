@@ -21,6 +21,7 @@ class TablePlanner {
    private Schema myschema;
    private Map<String,IndexInfo> indexes;
    private Transaction tx;
+   private String tblname;
    
    /**
     * Creates a new table planner.
@@ -38,6 +39,7 @@ class TablePlanner {
       myplan   = new TablePlan(tx, tblname, mdm);
       myschema = myplan.schema();
       indexes  = mdm.getIndexInfo(tblname, tx);
+      this.tblname = tblname;
    }
    
    /**
@@ -95,7 +97,7 @@ class TablePlanner {
             IndexInfo ii = indexes.get(fldname);
             String indexType = ii.getIndexType();
             System.out.println(indexType + " index on " + fldname + " used");
-            return new IndexSelectPlan(myplan, ii, val);
+            return new IndexSelectPlan(myplan, ii, val, fldname);
          }
       }
       return null;
@@ -162,5 +164,9 @@ class TablePlanner {
          return new SelectPlan(p, joinpred);
       else
          return p;
+   }
+
+   public String getTableName() {
+      return tblname;
    }
 }

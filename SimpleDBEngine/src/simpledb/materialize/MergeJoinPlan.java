@@ -98,5 +98,13 @@ public class MergeJoinPlan implements Plan {
    public Schema schema() {
       return sch;
    }
+
+   /**
+    * Return the string representation of this query plan
+    */
+   public String toString() {
+      return "( " + p1.toString() + " sort merge join " + p2.toString() + 
+      " on " + fldname1 + "=" + fldname2 + " )";
+   }
 }
 

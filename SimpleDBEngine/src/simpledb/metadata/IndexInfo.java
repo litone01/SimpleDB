@@ -144,4 +144,11 @@ public class IndexInfo {
    public String getIndexType() {
       return indexType;
    }
+
+   /**
+    * Return the string representation of this index info
+    */
+   public String toString() {
+      return fldname + "(" + indexType + " index)";
+   }
 }

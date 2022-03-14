@@ -167,4 +167,6 @@ public class SortPlan implements Plan {
          dest.setVal(fldname, src.getVal(fldname));
       return src.next();
    }
+
+   // TODO: decide whether to add toString here for order by
 }

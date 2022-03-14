@@ -112,4 +112,11 @@ public class MultibufferProductPlan implements Plan {
       dest.close();
       return t;
    }
+
+   /**
+    * Return the string representation of this query plan
+    */
+    public String toString() {
+      return "( " + lhs.toString() + " multi-buffer product join " + rhs.toString() + " )";
+  }
 }

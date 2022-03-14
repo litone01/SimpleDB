@@ -83,4 +83,8 @@ public class SelectPlan implements Plan {
    public Schema schema() {
       return p.schema();
    }
+
+   public String toString() {
+      return "(select \n    " + p.toString() + "\n    using predicate " + pred.toString() + ")";
+   }
 }

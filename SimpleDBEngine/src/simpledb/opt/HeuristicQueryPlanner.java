@@ -37,28 +37,46 @@ public class HeuristicQueryPlanner implements QueryPlanner {
       
       // Step 2:  Choose the lowest-size plan to begin the join order
       Plan currentplan = getLowestSelectPlan();
+
+      System.out.println("1------------");
+      System.out.println(currentplan.toString());
       
       // Step 3:  Repeatedly add a plan to the join order
       while (!tableplanners.isEmpty()) {
          Plan p = getLowestJoinPlan(currentplan);
-         if (p != null)
+         if (p != null) {
             currentplan = p;
-         else  // no applicable join
+         } else { // no applicable join
             currentplan = getLowestProductPlan(currentplan);
+         }
       }
+
+      System.out.println("2------------");
+      System.out.println(currentplan.toString());
       
       // Step 4.  Project on the field names and return
       currentplan = new ProjectPlan(currentplan, data.fields());
 
+      System.out.println("3------------");
+      System.out.println(currentplan.toString());
+
       // step 5. Add a SortPlan if an order by clause is specified
       if (!data.orderByClause().isEmpty()) {
+         System.out.println("[Log]: Adding a sort plan on fields " + data.orderByClause().toString());
          currentplan = new SortPlan(data.orderByClause(), tx, currentplan);
       }
 
+      System.out.println("4------------");
+      System.out.println(currentplan.toString());
+
       //step 6. return aggregate value
       if(!data.aggregationFns().isEmpty() || !data.groupByFields().isEmpty()){
+         System.out.println("[Log]: Returning aggregate value for fields " + data.groupByFields().toString());
          currentplan = new GroupByPlan(tx, currentplan, data.groupByFields(), data.aggregationFns());
       }
+
+      System.out.println("5------------");
+      System.out.println(currentplan.toString());
       
       return currentplan;
    }
@@ -87,8 +105,9 @@ public class HeuristicQueryPlanner implements QueryPlanner {
             bestplan = plan;
          }
       }
-      if (bestplan != null)
+      if (bestplan != null) {
          tableplanners.remove(besttp);
+      }
       return bestplan;
    }
    
