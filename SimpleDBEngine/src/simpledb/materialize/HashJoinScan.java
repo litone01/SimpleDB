@@ -52,7 +52,9 @@ public class HashJoinScan implements Scan {
      */
     public void beforeFirst() {
         buildNextInMemoryHashTable();
-        s1.beforeFirst();
+        if (inMemoryHashMap.size() != 0) {
+            s1.beforeFirst();
+        }
     }
 
     /**
@@ -62,6 +64,10 @@ public class HashJoinScan implements Scan {
      * @see simpledb.query.Scan#next()
      */
     public boolean next() {
+        // if there is no available/matching s2 partition, no join record
+        if (inMemoryHashMap.size() == 0) {
+            return false;
+        }
         // Probe/Join Phase
         // 1. match the current s1 with all possible matching s2
         while (matchingS2 != null && positionS2 < matchingS2.size()) {
