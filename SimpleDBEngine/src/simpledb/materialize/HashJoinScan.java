@@ -26,7 +26,7 @@ public class HashJoinScan implements Scan {
     Map<String, Constant> currentS2Val;
 
     /**
-     * Create a hash join scan for the two partitions.
+     * Create a hash join scan for the two sets of partitions.
      * @param temps1 the map of partitions for the LHS query plan
      * @param temps2 the map of partitions for the RHS query plan
      * @param p2 the RHS query plan

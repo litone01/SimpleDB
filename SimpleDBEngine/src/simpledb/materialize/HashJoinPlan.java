@@ -37,7 +37,7 @@ public class HashJoinPlan implements Plan {
 
    /**
     * The method first hashs both plans (tables) into respective partitions.
-    * It then returns a hash join scan of the two two sets of partitions. 
+    * It then returns a hash join scan of the two sets of partitions. 
     */
     public Scan open() {
       Scan src1 = p1.open();
