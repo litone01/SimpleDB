@@ -19,10 +19,11 @@ public class HashJoinScan implements Scan {
     
     Map<Integer, List<Map<String, Constant>>> inMemoryHashMap;
     List<Map<String, Constant>> matchingS2;
-    // TODO: can we explain s1 and s2 bc they are not the scan s1 and s2 from HashJoinPlan
+    // Scan for current pair of partition. s1 is from partition 1. s2 is from partition 2.
     Scan s1, s2;
     int positionS2 = 0;
     boolean hasmore1;
+    // fldname and value for current matching record from s2
     Map<String, Constant> currentS2Val;
 
     /**
@@ -56,7 +57,7 @@ public class HashJoinScan implements Scan {
 
     /**
      * Move to the next record, 
-     *  or start the build then probe/join phase on a new pair of partitions.
+     *  or start the build then probe/join on a new pair of partitions.
      * 
      * @see simpledb.query.Scan#next()
      */

@@ -63,9 +63,7 @@ public class HashJoinPlan implements Plan {
     */
    @Override
    public int blocksAccessed() {
-      int sizep1 = new MaterializePlan(tx, p1).blocksAccessed();
-      int sizep2 = new MaterializePlan(tx, p2).blocksAccessed();
-      return 3 * (sizep1 + sizep2);
+      return 3 * (p1.blocksAccessed() + p2.blocksAccessed());
    }
 
    /**
