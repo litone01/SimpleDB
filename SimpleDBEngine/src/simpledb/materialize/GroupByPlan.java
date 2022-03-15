@@ -31,6 +31,9 @@ public class GroupByPlan implements Plan {
       this.p = new SortPlan(tx, p, groupfields);
       this.groupfields = groupfields;
       this.aggfns = aggfns;
+      // Add existing fields to the schema
+      // And append the group by and aggregation fields
+      sch.addAll(p.schema());
       for (String fldname : groupfields)
          sch.add(fldname, p.schema());
       for (AggregationFn fn : aggfns)
