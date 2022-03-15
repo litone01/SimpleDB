@@ -74,7 +74,6 @@ public class Parser {
    
    public QueryData query() {
       lex.eatKeyword("select");
-//      List<String> fields = selectList();
       List<String> fields = new ArrayList<>();
       List<AggregationFn> aggregationFns = new ArrayList<>();
 
@@ -106,18 +105,17 @@ public class Parser {
             }
 
             aggregationFns.add(aggregationFn);
+            fields.add(aggregationFn.fieldName());
          } else {
             field = field();
-//            fields.add(field);
+            fields.add(field);
          }
-         fields.add(field);
+         
          if(!lex.matchDelim(',')){
             break;
          }
          lex.eatDelim(',');
       }
-
-//      List<String> fields = selectList();
 
       lex.eatKeyword("from");
       Collection<String> tables = tableList();

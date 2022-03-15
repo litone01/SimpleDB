@@ -45,6 +45,16 @@ public class GroupByTest {
             qry = "select sid, sname from student, dept group by sid, sname";
             TestUtil.executeSelectQuery(qry, tx, planner, sidAndSname);
 
+            LinkedHashMap<String, String> aggOne = new LinkedHashMap<String, String>();
+            aggOne.put("majorid", "INT");
+            aggOne.put("countofsid", "INT");
+            aggOne.put("maxofgradyear", "INT");
+            aggOne.put("minofgradyear", "INT");
+            aggOne.put("avgofgradyear", "INT");
+            aggOne.put("sumofgradyear", "INT");
+            qry = "select majorid, count(sid), max(gradyear), min(gradyear), avg(gradyear), sum(gradyear) from student group by majorid";
+            TestUtil.executeSelectQuery(qry, tx, planner, aggOne);
+            
             tx.commit();
         }
         catch(Exception e) {
