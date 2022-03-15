@@ -17,7 +17,7 @@ public class DistinctTest {
             Planner planner = db.planner();
 
             // analogous to the statement
-            String qry = "select distinct majorid from student";
+            String qry = "select distinct majorid, gradyear from student where gradyear < 2022 and majorid = 10 order by gradyear, majorid";
             Plan p = planner.createQueryPlan(qry, tx);
 
             // analogous to the result set
@@ -26,9 +26,10 @@ public class DistinctTest {
 //            System.out.println("Name\tMajor");
             while (s.next()) {
 
-                int majorid = s.getInt("majorid"); //in lower case
+                int majorid = s.getInt("majorid");
+                int gradyear = s.getInt("gradyear");//in lower case
 
-                System.out.println(majorid + "\t");
+                System.out.println(majorid + "\t" + gradyear + "\t");
             }
             s.close();
             tx.commit();

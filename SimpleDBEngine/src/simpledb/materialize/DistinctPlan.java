@@ -15,8 +15,10 @@ public class DistinctPlan implements Plan {
     private Transaction tx;
     private List<String> distinctFields;
     private RecordComparator comp;
+    private boolean onlyOneRun;
 
     public DistinctPlan(Plan p, List<String> distinctFields, Transaction tx) {
+        onlyOneRun = true;
         this.p = p;
         this.sch = p.schema();
         this.distinctFields = distinctFields;
@@ -27,22 +29,60 @@ public class DistinctPlan implements Plan {
     /**
      * Opens a scan corresponding to this plan.
      * The scan will be positioned before its first record.
+     * Implements the optimized sort-based duplicate removal algorithm.
      *
      * @return a scan
      */
     @Override
     public Scan open() {
         Scan src = p.open();
+        //split into sorted runs
         List<TempTable> runs = splitIntoRuns(src);
         src.close();
         while (runs.size() > 1)
+            // if the records are already sorted,
+            // there will be no actual splitting and we only have one run
+            // then we will never enter this loop to do any merging and duplicate removal
             runs = doAMergeIteration(runs);
-        Scan result = runs.get(0).open();
-
-
+        Scan result;
+        TempTable temp = runs.get(0);
+        if(onlyOneRun) {
+            // if there is only one run
+            // we will explicitly handle it
+            result = removeDuplicates(temp).open();
+        } else {
+            result = temp.open();
+        }
         return new DistinctScan(result);
     }
 
+    /**
+     * Returns a temp table which has its duplicates removed
+     * This method is only used if no splitting occurs and we only have one sorted table.
+     * Then we will call this routine to remove duplicates.
+     *
+     * @return a temp table which has its duplicates removed
+     */
+    private TempTable removeDuplicates(TempTable p) {
+        Scan src = p.open();
+        TempTable result = new TempTable(tx, sch);
+        UpdateScan dest = result.open();
+
+        boolean hasmore = src.next();
+
+        if (hasmore)
+            hasmore = copy(src, dest);
+            while (hasmore)
+                if(comp.compare(src, dest)!=0 ){
+                    hasmore = copy(src, dest);
+                } else {
+                    hasmore = src.next();
+                }
+
+        src.close();
+        dest.close();
+        return result;
+    }
     /**
      * Returns an estimate of the number of block accesses
      * that will occur when the scan is read to completion.
@@ -51,9 +91,8 @@ public class DistinctPlan implements Plan {
      */
     @Override
     public int blocksAccessed() {
-        //not done
-        // p.blocksAccessed() + blocks accessed during sorting and merging
-        return p.blocksAccessed();
+        Plan mp = new MaterializePlan(tx, p); // not opened; just for analysis
+        return mp.blocksAccessed();
     }
 
     /**
@@ -64,9 +103,6 @@ public class DistinctPlan implements Plan {
      */
     @Override
     public int recordsOutput() {
-        //number of distinct records
-        //not done
-        //need to change
         return p.recordsOutput();
     }
 
@@ -102,6 +138,7 @@ public class DistinctPlan implements Plan {
         UpdateScan currentscan = currenttemp.open();
         while (copy(src, currentscan))
             if (comp.compare(src, currentscan) < 0) {
+                onlyOneRun = false;
                 // start a new run
                 currentscan.close();
                 currenttemp = new TempTable(tx, sch);
@@ -125,7 +162,7 @@ public class DistinctPlan implements Plan {
     }
 
     private TempTable mergeTwoRuns(TempTable p1, TempTable p2) {
-        //merge and remove duplicates?
+        //merge and remove duplicates
         Scan src1 = p1.open();
         Scan src2 = p2.open();
         TempTable result = new TempTable(tx, sch);
