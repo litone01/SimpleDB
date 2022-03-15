@@ -21,11 +21,10 @@ public class HashJoinPartition {
 
     /**
      * Create a hash join partition plan for the specified query.
-     * 
      * @param p            the plan for the underlying query
      * @param tx           the calling transaction
      * @param fldname      fldname in the join predicate
-     * @param numPartition number of partition, usually set to available buffer - 2
+     * @param numPartition number of partition, usually set to available buffer - 1
      */
     public HashJoinPartition(Transaction tx, Plan p, String fldname, int numPartition) {
         this.tx = tx;
@@ -36,30 +35,25 @@ public class HashJoinPartition {
     }
 
     /**
-     * Generate the partitions for hash join
-     * 
-     * @param p            the plan for the underlying query
+     * Generate the partitions for hash join.
      * @param src           scan for one of the table
      */
     public Map<Integer, TempTable>  generatePartition(Scan src) {
         tempTables = new HashMap<>();
         src.beforeFirst();
-        if (!src.next())
+        if (!src.next()) {
             return tempTables;
-
+        }
         while (copyToPartition(p, src)) {
         }
-
         for (UpdateScan currentUpdateScan : updateScanTables.values()) {
             currentUpdateScan.close();
         }
-
         return tempTables;
     }
 
     /**
-     * copy records to the correct partition
-     * 
+     * Copy records to the correct partition.
      * @param p            the plan for the underlying query
      * @param src           scan for one of the table
      */
