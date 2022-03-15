@@ -139,7 +139,7 @@ class TablePlanner {
          if (currfield != null && currsch.hasField(currfield)) {
             Plan hashJoinPlan = 
                new HashJoinPlan(tx, myplan, current, fldname, currfield);
-               hashJoinPlan = addSelectPred(hashJoinPlan);
+            hashJoinPlan = addSelectPred(hashJoinPlan);
             return addJoinPred(hashJoinPlan, currsch);
          }
       }

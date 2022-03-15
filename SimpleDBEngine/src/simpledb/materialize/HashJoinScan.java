@@ -13,26 +13,28 @@ import simpledb.query.UpdateScan;
 
 public class HashJoinScan implements Scan {
     private String fldname1, fldname2;
-    Map<Integer, TempTable> temps2;
     Map<Integer, TempTable> temps1;
-
+    Map<Integer, TempTable> temps2;
+    Plan p2;
+    
     Map<Integer, List<Map<String, Constant>>> inMemoryHashMap;
     List<Map<String, Constant>> matchingS2;
-
-
+    // TODO: can we explain s1 and s2 bc they are not the scan s1 and s2 from HashJoinPlan
     Scan s1, s2;
-    Plan p2;
     int positionS2 = 0;
     boolean hasmore1;
     Map<String, Constant> currentS2Val;
 
     /**
-     * Create a hash join plan for the specified query.
-     * 
-     * @param p  the plan for the underlying query
-     * @param tx the calling transaction
+     * Create a hash join scan for the two partitions.
+     * @param temps1 the map of partitions for the LHS query plan
+     * @param temps2 the map of partitions for the RHS query plan
+     * @param p2 the RHS query plan
+     * @param fldname1 the LHS join field
+     * @param fldname2 the RHS join field
      */
-    public HashJoinScan(Map<Integer, TempTable> temps1, Map<Integer, TempTable> temps2, Plan p2, String fldname1, String fldname2) {
+    public HashJoinScan(Map<Integer, TempTable> temps1, 
+        Map<Integer, TempTable> temps2, Plan p2, String fldname1, String fldname2) {
         this.temps1 = temps1;
         this.temps2 = temps2;
         this.p2 = p2;
@@ -53,13 +55,14 @@ public class HashJoinScan implements Scan {
     }
 
     /**
-     * Move to the next record.
+     * Move to the next record, 
+     *  or start the build then probe/join phase on a new pair of partitions.
      * 
      * @see simpledb.query.Scan#next()
      */
     public boolean next() {
-
-        // match s1 with all matching s2
+        // Probe/Join Phase
+        // 1. match the current s1 with all possible matching s2
         while (matchingS2 != null && positionS2 < matchingS2.size()) {
             if (s1.getVal(fldname1).equals(matchingS2.get(positionS2).get(fldname2))) {
                 currentS2Val = matchingS2.get(positionS2);
@@ -69,9 +72,8 @@ public class HashJoinScan implements Scan {
             positionS2++;
         }
 
-        // probe
+        // 2. recurse with the next value in the current s1 partition if applicable
         hasmore1 = s1.next();
-
         while (hasmore1) {
             int s1Hash = s1.getVal(fldname1).hashCode();
             positionS2 = 0;
@@ -80,12 +82,14 @@ public class HashJoinScan implements Scan {
                 hasmore1 = s1.next();
                 continue;
             }
-
             return next();
         }
         s1.close();
 
-        // check if there is more s2 partitions
+        // Build Phase
+        // 1. check if there are more s2 partitions
+        // 2. if there are, find the matching s1 and s2 partition
+        //    and build the next in_memory hashtable
         boolean hasNextPartition = buildNextInMemoryHashTable();
         if (!hasNextPartition) {
             return false;
@@ -94,60 +98,53 @@ public class HashJoinScan implements Scan {
     }
 
     /**
-     * Build in memory hash table for the next partition
-     * Assumption: We will always have a buffer size that is big enough to build an in-memory hash table.
-     * In the case that we don't have such buffer size, we will use other join algorithm instead of hash join.
+     * Build in memory hash table for the next partition.
+     * Assumption: We will always have a buffer size that is big enough 
+     *  to build an in-memory hash table.
+     * In the case that we don't have such buffer size, 
+     *  we will use other join algorithm instead of hash join.
+     * 
+     * @return true if we successfully build an in-memory hash table,
+     *         false otherwise.
      */
     private boolean buildNextInMemoryHashTable() {
         inMemoryHashMap = new HashMap<>();
         TempTable tempTable2 = null;
-
         if (temps2.size() == 0){
             return false;
         }
-
-        Set<Integer> alltemps2keys = temps2.keySet();
+        Set<Integer> allTemps2Keys = temps2.keySet();
 
         // build hash table for first s2 partition that has a matching s1 partition
-        for (Integer key : alltemps2keys) {
-
+        // 1. find the s2 partition
+        for (Integer key : allTemps2Keys) {
             TempTable tempTable1 = temps1.get(key);
-            // skip building if current s2 partition do not have a matching s1 partition
-            if (tempTable1 != null) {
-
+            // skip s2 partitions does not have a matching s1 partition
+            if (tempTable1 == null) {
+                temps2.remove(key);
+            } else {
                 tempTable2 = temps2.get(key);
                 s1 = (UpdateScan) tempTable1.open();
                 temps2.remove(key);
                 break;
-            } else {
-
-                temps2.remove(key);
             }
-
         }
-
         s2 = (UpdateScan) tempTable2.open();
         s2.beforeFirst();
 
-
+        // 2. build hash table for the found suitable s2 partition
         boolean hasmore2 = s2.next();
         while (hasmore2) {
             int currentHash = s2.getVal(fldname2).hashCode();
-
             List<Map<String, Constant>> currentScan = inMemoryHashMap.get(currentHash);
-
             if (currentScan == null) {
                 currentScan = new ArrayList<>();
             }
-
             Map<String, Constant> s2fields = new HashMap<>();
-            for (String fldname : p2.schema().fields())
+            for (String fldname : p2.schema().fields()) {
                 s2fields.put(fldname, s2.getVal(fldname));
-
+            }
             currentScan.add(s2fields);
-
-
-
             inMemoryHashMap.put(currentHash, currentScan);
             hasmore2 = s2.next();
         }
@@ -164,9 +161,9 @@ public class HashJoinScan implements Scan {
      */
     public int getInt(String fldname) {
         if (s1.hasField(fldname))
-        return s1.getInt(fldname);
-     else
-        return currentS2Val.get(fldname).asInt();
+            return s1.getInt(fldname);
+        else
+            return currentS2Val.get(fldname).asInt();
     }
 
     /**
@@ -178,9 +175,9 @@ public class HashJoinScan implements Scan {
      */
     public String getString(String fldname) {
         if (s1.hasField(fldname))
-        return s1.getString(fldname);
-     else
-        return currentS2Val.get(fldname).asString();
+            return s1.getString(fldname);
+        else
+            return currentS2Val.get(fldname).asString();
     }
 
     /**
@@ -192,10 +189,9 @@ public class HashJoinScan implements Scan {
      */
     public Constant getVal(String fldname) {
         if (s1.hasField(fldname))
-        return s1.getVal(fldname);
-     else
-        return currentS2Val.get(fldname);
-
+            return s1.getVal(fldname);
+        else
+            return currentS2Val.get(fldname);
     }
 
     /**
@@ -209,11 +205,10 @@ public class HashJoinScan implements Scan {
     }
 
     /**
-     * Close both underlying scans. Do nothing since we have already close all s1 and s2.
+     * Do nothing since we have already close all s1 and s2.
      * 
      * @see simpledb.query.Scan#close()
      */
     public void close() {
     }
-
 }
