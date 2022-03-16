@@ -15,6 +15,8 @@ public class SortPlan implements Plan {
    private Plan p;
    private Schema sch;
    private RecordComparator comp;
+   private boolean isOrderByClauseSpecified;
+   private List<OrderByPair> orderByFields;
    
    // TODO: can we resolve and update the dependency with GroupByPlan and MergeJoinPlan
    /**
@@ -28,6 +30,7 @@ public class SortPlan implements Plan {
       this.p = p;
       sch = p.schema();
       comp = new RecordComparator(sortfields);
+      isOrderByClauseSpecified = false;
    }
    
    // TODO: can we solve the issue when overloading RecordComparator consturctor 
@@ -42,7 +45,8 @@ public class SortPlan implements Plan {
       this.tx = tx;
       this.p = p;
       sch = p.schema();
-      boolean isOrderByClauseSpecified = true;
+      isOrderByClauseSpecified = true;
+      this.orderByFields = orderByFields;
       comp = new RecordComparator(orderByFields, isOrderByClauseSpecified);
    }
 
@@ -168,5 +172,15 @@ public class SortPlan implements Plan {
       return src.next();
    }
 
-   // TODO: decide whether to add toString here for order by
+   /**
+    * Return the string representation of order by plan
+    */
+    @Override
+    public String toString() {
+       if (isOrderByClauseSpecified) {
+          return "order by " + orderByFields.toString();
+       } else {
+          return "";
+       }
+    }
 }

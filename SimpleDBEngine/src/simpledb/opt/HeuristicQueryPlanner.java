@@ -37,9 +37,6 @@ public class HeuristicQueryPlanner implements QueryPlanner {
       
       // Choose the lowest-size plan to begin the join order
       Plan currentplan = getLowestSelectPlan();
-
-      System.out.println("1------------");
-      System.out.println(currentplan.toString());
       
       // Repeatedly add a plan to the join order
       while (!tableplanners.isEmpty()) {
@@ -50,40 +47,28 @@ public class HeuristicQueryPlanner implements QueryPlanner {
             currentplan = getLowestProductPlan(currentplan);
          }
       }
-
-      System.out.println("2------------");
-      System.out.println(currentplan.toString());
       
       // Execute group by and aggregate functions if applicable
       if(!data.aggregationFns().isEmpty() || !data.groupByFields().isEmpty()){
          currentplan = new GroupByPlan(tx, currentplan, data.groupByFields(), data.aggregationFns());
       }
 
-      System.out.println("3------------");
-      System.out.println(currentplan.toString());
-
       // Project on the field names and return
       currentplan = new ProjectPlan(currentplan, data.fields());
-
-      System.out.println("4------------");
-      System.out.println(currentplan.toString());
 
       // Remove any duplicate output tuples if distinct is specified
       if(data.isDistinct()){
          currentplan = new DistinctPlan(currentplan, data.fields(), tx);
       }
 
-      System.out.println("5------------");
-      System.out.println(currentplan.toString());
-
       // Add a SortPlan if an order by clause is specified
       if (!data.orderByClause().isEmpty()) {
-         System.out.println("[Log]: Adding a sort plan on fields " + data.orderByClause().toString());
          currentplan = new SortPlan(data.orderByClause(), tx, currentplan);
       }
 
-      System.out.println("6------------");
+      System.out.println("---------------QUERY PLAN---------------");
       System.out.println(currentplan.toString());
+      System.out.println("----------------------------------------");
       
       return currentplan;
    }
