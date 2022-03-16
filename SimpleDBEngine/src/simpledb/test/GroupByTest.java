@@ -1,11 +1,9 @@
 package simpledb.test;
+
 import simpledb.tx.Transaction;
-
-import java.util.LinkedHashMap;
-
 import simpledb.plan.Planner;
 import simpledb.server.SimpleDB;
-import simpledb.test.TestUtil;
+
 public class GroupByTest {
     public static void main(String[] args) {
         try {
@@ -16,46 +14,31 @@ public class GroupByTest {
             // NOTE: COMMENT OUT this once the first one! Dont create the tables again!
             // Also, check if the join method has been set the correct join algorithm
             TestUtil.createSampleStudentDBWithoutIndex(planner, tx);
-            
-            // LinkedHashMap (we want to preserve insertion order) for fieldName and its corresponding type
-            // In this test, we have:
-            // 1. sid: INT
-            // 2. sname: STRING
-            LinkedHashMap<String, String> sid = new LinkedHashMap<String, String>();
-            sid.put("sid", "INT");
-            LinkedHashMap<String, String> sname = new LinkedHashMap<String, String>();
-            sname.put("sname", "STRING");
-            LinkedHashMap<String, String> sidAndSname = new LinkedHashMap<String, String>();
-            sidAndSname.put("sid", "INT");
-            sidAndSname.put("sname", "STRING");
 
             String qry;
-            qry = "select sid from student, dept group by sid";
-            TestUtil.executeSelectQuery(qry, tx, planner, sid);
+            qry = "select sid from student group by sid";
+            TestUtil.executeQuery(qry, db);
 
-            qry = "select sname from student, dept group by sname";
-            TestUtil.executeSelectQuery(qry, tx, planner, sname);
+            qry = "select count(sid) from student";
+            TestUtil.executeQuery(qry, db);
 
-            qry = "select sid from student, dept group by sid, sname";
-            TestUtil.executeSelectQuery(qry, tx, planner, sid);
+            qry = "select sname from student group by sname";
+            TestUtil.executeQuery(qry, db);
 
-            qry = "select sname from student, dept group by sid, sname";
-            TestUtil.executeSelectQuery(qry, tx, planner, sname);
+            qry = "select sid from student group by sid, sname";
+            TestUtil.executeQuery(qry, db);
 
-            qry = "select sid, sname from student, dept group by sid, sname";
-            TestUtil.executeSelectQuery(qry, tx, planner, sidAndSname);
+            qry = "select sname from student group by sid, sname";
+            TestUtil.executeQuery(qry, db);
 
-            LinkedHashMap<String, String> aggOne = new LinkedHashMap<String, String>();
-            aggOne.put("majorid", "INT");
-            aggOne.put("countofsid", "INT");
-            aggOne.put("maxofgradyear", "INT");
-            aggOne.put("minofgradyear", "INT");
-            aggOne.put("avgofgradyear", "INT");
-            aggOne.put("sumofgradyear", "INT");
-            qry = "select majorid, count(sid), max(gradyear), min(gradyear), avg(gradyear), sum(gradyear) from student group by majorid";
-            TestUtil.executeSelectQuery(qry, tx, planner, aggOne);
-            
-            tx.commit();
+            qry = "select sid, sname from student group by sid, sname";
+            TestUtil.executeQuery(qry, db);
+
+            qry = "select majorid, count(gradyear), max(gradyear), min(gradyear), avg(gradyear), sum(gradyear) from student where sid > 1 group by majorid";
+            TestUtil.executeQuery(qry, db);
+
+            qry = "select count(sid), max(gradyear), min(gradyear), avg(gradyear), sum(gradyear) from student group by majorid";
+            TestUtil.executeQuery(qry, db);
         }
         catch(Exception e) {
             e.printStackTrace();
