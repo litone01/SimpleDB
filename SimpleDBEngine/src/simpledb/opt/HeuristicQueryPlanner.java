@@ -29,16 +29,16 @@ public class HeuristicQueryPlanner implements QueryPlanner {
     */
    public Plan createPlan(QueryData data, Transaction tx) {
       
-      // Step 1:  Create a TablePlanner object for each mentioned table
+      // Create a TablePlanner object for each mentioned table
       for (String tblname : data.tables()) {
          TablePlanner tp = new TablePlanner(tblname, data.pred(), tx, mdm);
          tableplanners.add(tp);
       }
       
-      // Step 2:  Choose the lowest-size plan to begin the join order
+      // Choose the lowest-size plan to begin the join order
       Plan currentplan = getLowestSelectPlan();
       
-      // Step 3:  Repeatedly add a plan to the join order
+      // Repeatedly add a plan to the join order
       while (!tableplanners.isEmpty()) {
          Plan p = getLowestJoinPlan(currentplan);
          if (p != null)
@@ -47,19 +47,19 @@ public class HeuristicQueryPlanner implements QueryPlanner {
             currentplan = getLowestProductPlan(currentplan);
       }
       
-      // Step 4.  Project on the field names and return
+      // Execute group by and aggregate functions if applicable
+      if(!data.aggregationFns().isEmpty() || !data.groupByFields().isEmpty()){
+         currentplan = new GroupByPlan(tx, currentplan, data.groupByFields(), data.aggregationFns());
+      }
+
+      // Project on the field names and return
       currentplan = new ProjectPlan(currentplan, data.fields());
 
-      // step 5. Add a SortPlan if an order by clause is specified
+      // Add a SortPlan if an order by clause is specified
       if (!data.orderByClause().isEmpty()) {
          currentplan = new SortPlan(data.orderByClause(), tx, currentplan);
       }
 
-      //step 6. return aggregate value
-      if(!data.aggregationFns().isEmpty() || !data.groupByFields().isEmpty()){
-         currentplan = new GroupByPlan(tx, currentplan, data.groupByFields(), data.aggregationFns());
-      }
-      
       return currentplan;
    }
    
