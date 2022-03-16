@@ -74,8 +74,6 @@ public class TestUtil {
         s = "insert into STUDENT(SId, SName, MajorId, GradYear) values ";
         String[] studvals = {"(1, 'joe', 10, 2021)",
             "(2, 'amy', 20, 2020)",
-            "(2, 'amy', 20, 2020)",
-            "(2, 'amy', 20, 2020)",
             "(3, 'max', 10, 2022)",
             "(4, 'sue', 20, 2022)",
             "(5, 'bob', 30, 2020)",
