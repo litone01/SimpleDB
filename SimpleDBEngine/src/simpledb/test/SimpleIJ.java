@@ -1,6 +1,7 @@
 package simpledb.test;
 
-import java.sql.*;
+import java.sql.ResultSetMetaData;
+import java.sql.Types;
 import java.util.Scanner;
 
 import simpledb.tx.Transaction;
@@ -19,8 +20,6 @@ public class SimpleIJ {
 
       try {
          SimpleDB db = new SimpleDB(s);
-         Transaction tx  = db.newTx();
-         Planner planner = db.planner();
 
          System.out.print("\nSQL> ");
          while (sc.hasNextLine()) {
@@ -29,12 +28,14 @@ public class SimpleIJ {
             if (cmd.startsWith("exit")) {
                break;
             }
-            else if (cmd.startsWith("select")) {
-               doQuery(tx, planner, cmd);
-               
-            } else {
-               doUpdate(tx, planner, cmd);
-               
+            else {
+               Transaction tx  = db.newTx();
+               Planner planner = db.planner();
+               if (cmd.startsWith("select")) {
+                  doQuery(tx, planner, cmd);
+               } else {
+                  doUpdate(tx, planner, cmd);
+               }
             }
             System.out.print("\nSQL> ");
          }

@@ -12,8 +12,6 @@ public class CreateStudentDBWithoutIndex {
 			Planner planner = db.planner();
 			
 			TestUtil.createSampleStudentDBWithoutIndex(planner, tx);
-
-			tx.commit();
 		}
 		catch(Exception e) {
 			e.printStackTrace();

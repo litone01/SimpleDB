@@ -1,42 +1,70 @@
 package simpledb.test;
 
-import java.util.LinkedHashMap;
-
+import java.sql.*;
 import simpledb.plan.Plan;
 import simpledb.plan.Planner;
 import simpledb.query.Scan;
+import simpledb.record.Schema;
+import simpledb.server.SimpleDB;
 import simpledb.tx.Transaction;
+import simpledb.jdbc.embedded.EmbeddedMetaData;
 
 public class TestUtil {
-    // Note that only for type, only INT and STRING are supported and the spelling must be exact, i.e. all CAPS
-    public static void executeSelectQuery(String qry, Transaction tx, Planner planner, LinkedHashMap<String, String> fieldNameAndTypes) {
-        System.out.println(qry);
-        Plan p = planner.createQueryPlan(qry, tx);
-        Scan scan = p.open();
-        // print header
-        for (String fieldName : fieldNameAndTypes.keySet()) {
-            System.out.print(fieldName + "\t");
-        }
-        System.out.println();
+    public static void executeQuery(String query, SimpleDB db) {
+        Transaction tx  = db.newTx();
+        Planner planner = db.planner();
+        doQuery(query, tx, planner);
+    }
 
-        // print data based on field name and type
-        while (scan.next()) {
-            for (String fieldName : fieldNameAndTypes.keySet()) {
-                String fieldType = fieldNameAndTypes.get(fieldName);
-                if (fieldType.equals("INT")) {
-                    System.out.print(scan.getInt(fieldName) + "\t");
-                } else if (fieldType.equals("STRING")) {
-                    System.out.print(scan.getString(fieldName) + "\t");
-                } else {
-                    System.out.print("unknown type" + "\t");
-                }
+    private static void doQuery(String cmd, Transaction tx, Planner planner) {
+        try {
+            // print sql query
+            System.out.println(cmd);
+            Plan p = planner.createQueryPlan(cmd, tx);
+            Scan s = p.open();
+            Schema sch = p.schema();
+            ResultSetMetaData md = new EmbeddedMetaData(sch);
+            int numcols = md.getColumnCount();
+            int totalwidth = 0;
+
+            // print header
+            for(int i=1; i<=numcols; i++) {
+                String fldname = md.getColumnName(i);
+                int width = md.getColumnDisplaySize(i);
+                totalwidth += width;
+                String fmt = "%" + width + "s";
+                System.out.format(fmt, fldname);
             }
             System.out.println();
+            for(int i=0; i<totalwidth; i++)
+                System.out.print("-");
+            System.out.println();
+
+            // print records
+            while(s.next()) {
+                for (int i=1; i<=numcols; i++) {
+                    String fldname = md.getColumnName(i);
+                    int fldtype = md.getColumnType(i);
+                    String fmt = "%" + md.getColumnDisplaySize(i);
+                    if (fldtype == Types.INTEGER) {
+                    int ival = s.getInt(fldname);
+                    System.out.format(fmt + "d", ival);
+                    }
+                    else {
+                    String sval = s.getString(fldname);
+                    System.out.format(fmt + "s", sval);
+                    }
+                }
+                System.out.println();
+            }
+            s.close();
+            tx.commit();
         }
-        scan.close();
-        System.out.println("end of select query\n");
-        
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
+    
 
     public static void createSampleStudentDBWithoutIndex(Planner planner, Transaction tx) {
         String s = "create table STUDENT(SId int, SName varchar(10), MajorId int, GradYear int)";
@@ -114,7 +142,6 @@ public class TestUtil {
             planner.executeUpdate(s + enrollvals[i], tx);
         System.out.println("ENROLL records inserted.");
 
-        // TODO: should tx.commit() be here?
-        // tx.commit();
+        tx.commit();
     }
 }

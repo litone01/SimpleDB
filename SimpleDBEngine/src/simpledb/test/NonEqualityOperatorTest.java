@@ -1,12 +1,8 @@
 package simpledb.test;
 
 import simpledb.tx.Transaction;
-
-import java.util.LinkedHashMap;
-
 import simpledb.plan.Planner;
 import simpledb.server.SimpleDB;
-import simpledb.test.TestUtil;
 
 public class NonEqualityOperatorTest {
     public static void main(String[] args) {
@@ -17,75 +13,66 @@ public class NonEqualityOperatorTest {
 			
             // NOTE: COMMENT OUT this once the first one! Dont create the tables again!
 			TestUtil.createSampleStudentDBWithoutIndex(planner, tx);
-            
-            // LinkedHashMap (we want to preserve insertion order) for fieldName and its corresponding type
-            // In this test, we have:
-            // 1. sname: STRING
-            // 2. gradyear: INT
-            LinkedHashMap<String, String> fieldNameAndType = new LinkedHashMap<String, String>();
-            fieldNameAndType.put("sname", "STRING");
-            fieldNameAndType.put("gradyear", "INT");
 
             // Test query on non-equality operators
             // Section A. with space between the expressions in the where clause
             // 1. = operator
             String qry = "select sname, gradyear from student where majorid = 10";
-            TestUtil.executeSelectQuery(qry, tx, planner, fieldNameAndType);
+            TestUtil.executeQuery(qry, db);
             
             // 2. > operator
             qry = "select sname, gradyear from student where majorid > 10";
-            TestUtil.executeSelectQuery(qry, tx, planner, fieldNameAndType);
+            TestUtil.executeQuery(qry, db);
 
             // 3. <= operator
             qry = "select sname, gradyear from student where majorid <= 50";
-            TestUtil.executeSelectQuery(qry, tx, planner, fieldNameAndType);
+            TestUtil.executeQuery(qry, db);
 
             // 4. >= operator
             qry = "select sname, gradyear from student where majorid >= 50";
-            TestUtil.executeSelectQuery(qry, tx, planner, fieldNameAndType);
+            TestUtil.executeQuery(qry, db);
 
             // 5. < operator
             qry = "select sname, gradyear from student where majorid < 50";
-			TestUtil.executeSelectQuery(qry, tx, planner, fieldNameAndType);
+			TestUtil.executeQuery(qry, db);
 
             // 6. > operator
             qry = "select sname, gradyear from student where majorid > 10";
-            TestUtil.executeSelectQuery(qry, tx, planner, fieldNameAndType);
+            TestUtil.executeQuery(qry, db);
 
             // 7. mixed operators and multiple predicate
             qry = "select sname, gradyear from student where majorid != 10 and gradyear < 2020";
-            TestUtil.executeSelectQuery(qry, tx, planner, fieldNameAndType);
+            TestUtil.executeQuery(qry, db);
 
             // 8. mixed operators and multiple tables
             qry = "select sname, gradyear from student, dept where did = majorid and dname != 'math'";
-            TestUtil.executeSelectQuery(qry, tx, planner, fieldNameAndType);
+            TestUtil.executeQuery(qry, db);
 
             // Section B. with no space between the expressions in the where clause
             // 1. = operator
             qry = "select sname, gradyear from student where majorid=10";
-            TestUtil.executeSelectQuery(qry, tx, planner, fieldNameAndType);
+            TestUtil.executeQuery(qry, db);
 
             // 2. > operator
             qry = "select sname, gradyear from student where majorid>10";
-            TestUtil.executeSelectQuery(qry, tx, planner, fieldNameAndType);
+            TestUtil.executeQuery(qry, db);
 
             // 3. <= operator
             qry = "select sname, gradyear from student where majorid<=50";
-            TestUtil.executeSelectQuery(qry, tx, planner, fieldNameAndType);
+            TestUtil.executeQuery(qry, db);
 
             // 4. <> operator
             qry = "select sname, gradyear from student where majorid<>10";
-            TestUtil.executeSelectQuery(qry, tx, planner, fieldNameAndType);
+            TestUtil.executeQuery(qry, db);
 
             // 5. mixed operators and multiple predicate
             qry = "select sname, gradyear from student where majorid!=10 and gradyear<2020";
-            TestUtil.executeSelectQuery(qry, tx, planner, fieldNameAndType);
+            TestUtil.executeQuery(qry, db);
 
             // 6. mixed operators and multiple tables
             qry = "select sname, gradyear from student, dept where did=majorid and dname!='math'";
-            TestUtil.executeSelectQuery(qry, tx, planner, fieldNameAndType);
+            TestUtil.executeQuery(qry, db);
 
-			tx.commit();
 		}
 		catch(Exception e) {
 			e.printStackTrace();

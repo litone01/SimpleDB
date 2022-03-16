@@ -42,7 +42,6 @@ public class Parser {
    }
    
    public Term term() {
-	   //modify for lab 1
       Expression lhs = expression();
       Operator opr = lex.eatOpr();
       Expression rhs = expression();
@@ -74,10 +73,17 @@ public class Parser {
    
    public QueryData query() {
       lex.eatKeyword("select");
-//      List<String> fields = selectList();
       List<String> fields = new ArrayList<>();
-      List<AggregationFn> aggregationFns = new ArrayList<>();
 
+      // distinct
+      boolean isDistinct = false;
+      if(lex.matchKeyword("distinct")){
+         isDistinct = true;
+         lex.eatKeyword("distinct");
+      }
+
+      // aggregate
+      List<AggregationFn> aggregationFns = new ArrayList<>();
       while(true){
          String field;
          if(lex.matchAggregationFn()){
@@ -106,19 +112,19 @@ public class Parser {
             }
 
             aggregationFns.add(aggregationFn);
+            fields.add(aggregationFn.fieldName());
          } else {
             field = field();
-//            fields.add(field);
+            fields.add(field);
          }
-         fields.add(field);
+         
          if(!lex.matchDelim(',')){
             break;
          }
          lex.eatDelim(',');
       }
 
-//      List<String> fields = selectList();
-
+      // from
       lex.eatKeyword("from");
       Collection<String> tables = tableList();
       Predicate pred = new Predicate();
@@ -143,7 +149,7 @@ public class Parser {
          orderByClause = orderByClause();
       }
 
-      return new QueryData(fields, tables, aggregationFns, pred, groupByFields, orderByClause);
+      return new QueryData(isDistinct, fields, tables, aggregationFns, pred, groupByFields, orderByClause);
    }
    
    private List<String> selectList() {
