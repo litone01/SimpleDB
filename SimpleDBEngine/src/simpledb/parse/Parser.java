@@ -42,7 +42,6 @@ public class Parser {
    }
    
    public Term term() {
-	   //modify for lab 1
       Expression lhs = expression();
       Operator opr = lex.eatOpr();
       Expression rhs = expression();
@@ -110,18 +109,17 @@ public class Parser {
             }
 
             aggregationFns.add(aggregationFn);
+            fields.add(aggregationFn.fieldName());
          } else {
             field = field();
-//            fields.add(field);
+            fields.add(field);
          }
-         fields.add(field);
+         
          if(!lex.matchDelim(',')){
             break;
          }
          lex.eatDelim(',');
       }
-
-//      List<String> fields = selectList();
 
       lex.eatKeyword("from");
       Collection<String> tables = tableList();
