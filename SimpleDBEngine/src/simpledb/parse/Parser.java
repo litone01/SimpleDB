@@ -42,7 +42,6 @@ public class Parser {
    }
    
    public Term term() {
-	   //modify for lab 1
       Expression lhs = expression();
       Operator opr = lex.eatOpr();
       Expression rhs = expression();
