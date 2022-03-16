@@ -8,14 +8,22 @@ public class SumFn implements AggregationFn {
     private String fldname;
     private int sum;
 
+    /**
+     * Create a sum aggregation function for the specified field.
+     * @param fldname the name of the aggregated field
+     */
     public SumFn(String fldname) {
         this.fldname = fldname;
     }
+
     /**
-     * Use the current record of the specified scan
-     * to be the first record in the group.
-     *
-     * @param s the scan to aggregate over.
+     * Start a new sum.
+     * Since SimpleDB does not support null values,
+     * every value of record will be added to sum
+     * and every record will be counted regardless of the field.
+     * The current count is thus set to 1,
+     * and the current sum is set to the value of the current record.
+     * @see simpledb.materialize.AggregationFn#processFirst(simpledb.query.Scan)
      */
     @Override
     public void processFirst(Scan s) {
@@ -23,10 +31,10 @@ public class SumFn implements AggregationFn {
     }
 
     /**
-     * Use the current record of the specified scan
-     * to be the next record in the group.
-     *
-     * @param s the scan to aggregate over.
+     * Since SimpleDB does not support null values,
+     * this method always increments the count,
+     * and adds the current value to sum regardless of the field.
+     * @see simpledb.materialize.AggregationFn#processNext(simpledb.query.Scan)
      */
     @Override
     public void processNext(Scan s) {
@@ -34,9 +42,8 @@ public class SumFn implements AggregationFn {
     }
 
     /**
-     * Return the name of the new aggregation field.
-     *
-     * @return the name of the new aggregation field
+     * Return the field's name, prepended by "sumof".
+     * @see simpledb.materialize.AggregationFn#fieldName()
      */
     @Override
     public String fieldName() {
@@ -44,9 +51,8 @@ public class SumFn implements AggregationFn {
     }
 
     /**
-     * Return the computed aggregation value.
-     *
-     * @return the computed aggregation value
+     * Return the current sum.
+     * @see simpledb.materialize.AggregationFn#value()
      */
     @Override
     public Constant value() {

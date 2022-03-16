@@ -8,15 +8,18 @@ public class MinFn implements AggregationFn {
     private String fldname;
     private Constant val;
 
+    /**
+     * Create a min aggregation function for the specified field.
+     * @param fldname the name of the aggregated field
+     */
     public MinFn(String fldname) {
         this.fldname = fldname;
     }
 
     /**
-     * Use the current record of the specified scan
-     * to be the first record in the group.
-     *
-     * @param s the scan to aggregate over.
+     * Start a new minimum to be the
+     * field value in the current record.
+     * @see simpledb.materialize.AggregationFn#processFirst(simpledb.query.Scan)
      */
     @Override
     public void processFirst(Scan s) {
@@ -24,10 +27,9 @@ public class MinFn implements AggregationFn {
     }
 
     /**
-     * Use the current record of the specified scan
-     * to be the next record in the group.
-     *
-     * @param s the scan to aggregate over.
+     * Replace the current minimum by the field value
+     * in the current record, if it is smaller.
+     * @see simpledb.materialize.AggregationFn#processNext(simpledb.query.Scan)
      */
     @Override
     public void processNext(Scan s) {
@@ -37,9 +39,8 @@ public class MinFn implements AggregationFn {
     }
 
     /**
-     * Return the name of the new aggregation field.
-     *
-     * @return the name of the new aggregation field
+     * Return the field's name, prepended by "minof".
+     * @see simpledb.materialize.AggregationFn#fieldName()
      */
     @Override
     public String fieldName() {
@@ -47,9 +48,8 @@ public class MinFn implements AggregationFn {
     }
 
     /**
-     * Return the computed aggregation value.
-     *
-     * @return the computed aggregation value
+     * Return the current minimum.
+     * @see simpledb.materialize.AggregationFn#value()
      */
     @Override
     public Constant value() {
