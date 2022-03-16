@@ -18,7 +18,7 @@ public class DistinctPlan implements Plan {
     private boolean onlyOneRun;
 
     public DistinctPlan(Plan p, List<String> distinctFields, Transaction tx) {
-        onlyOneRun = true;
+        this.onlyOneRun = true;
         this.p = p;
         this.sch = p.schema();
         this.distinctFields = distinctFields;
@@ -39,11 +39,12 @@ public class DistinctPlan implements Plan {
         //split into sorted runs
         List<TempTable> runs = splitIntoRuns(src);
         src.close();
-        while (runs.size() > 1)
+        while (runs.size() > 1) {
             // if the records are already sorted,
             // there will be no actual splitting and we only have one run
             // then we will never enter this loop to do any merging and duplicate removal
             runs = doAMergeIteration(runs);
+        }
         Scan result;
         TempTable temp = runs.get(0);
         if(onlyOneRun) {
@@ -70,14 +71,16 @@ public class DistinctPlan implements Plan {
 
         boolean hasmore = src.next();
 
-        if (hasmore)
+        if (hasmore) {
             hasmore = copy(src, dest);
-            while (hasmore)
+            while (hasmore) {
                 if(comp.compare(src, dest)!=0 ){
                     hasmore = copy(src, dest);
                 } else {
                     hasmore = src.next();
                 }
+            }
+        }
 
         src.close();
         dest.close();
@@ -134,12 +137,13 @@ public class DistinctPlan implements Plan {
     private List<TempTable> splitIntoRuns(Scan src) {
         List<TempTable> temps = new ArrayList<>();
         src.beforeFirst();
-        if (!src.next())
+        if (!src.next()) {
             return temps;
+        }
         TempTable currenttemp = new TempTable(tx, sch);
         temps.add(currenttemp);
         UpdateScan currentscan = currenttemp.open();
-        while (copy(src, currentscan))
+        while (copy(src, currentscan)) {
             if (comp.compare(src, currentscan) < 0) {
                 onlyOneRun = false;
                 // start a new run
@@ -148,6 +152,7 @@ public class DistinctPlan implements Plan {
                 temps.add(currenttemp);
                 currentscan = (UpdateScan) currenttemp.open();
             }
+        }
         currentscan.close();
         return temps;
     }
@@ -181,13 +186,13 @@ public class DistinctPlan implements Plan {
                 hasmore2 = copy(src2, dest);
         }
 
-        while (hasmore1 && hasmore2)
+        while (hasmore1 && hasmore2) {
 
             if (comp.compare(src1, src2) < 0)
                 if(comp.compare(src1, dest) != 0) {
                     hasmore1 = copy(src1, dest);
                 } else{
-                    hasmore1 = src1.next();;
+                    hasmore1 = src1.next();
                 }
             else {
                 // src2 <= src1
@@ -199,8 +204,9 @@ public class DistinctPlan implements Plan {
                     hasmore2 = src2.next();
                 }
             }
+        }
 
-        if (hasmore1)
+        if (hasmore1) {
             while (hasmore1)
                 if(comp.compare(src1, dest)!=0 ){
                     hasmore1 = copy(src1, dest);
@@ -208,13 +214,15 @@ public class DistinctPlan implements Plan {
                     hasmore1 = src1.next();
                 }
 
-        else
-            while (hasmore2)
+        } else {
+            while (hasmore2) {
                 if(comp.compare(src2, dest)!=0){
                     hasmore2 = copy(src2, dest);
                 } else {
                     hasmore2 = src2.next();
                 }
+            }
+        }
 
 
         src1.close();
@@ -225,8 +233,9 @@ public class DistinctPlan implements Plan {
 
     private boolean copy(Scan src, UpdateScan dest) {
         dest.insert();
-        for (String fldname : sch.fields())
+        for (String fldname : sch.fields()) {
             dest.setVal(fldname, src.getVal(fldname));
+        }
         return src.next();
     }
 

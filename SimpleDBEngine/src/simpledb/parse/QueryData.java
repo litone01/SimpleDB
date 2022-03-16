@@ -20,11 +20,10 @@ public class QueryData {
    private boolean isDistinct;
 
    /**
-    * Saves the field and table list and predicate and the order by clause.
+    * Saves the information related to the query.
     */
-    public QueryData(boolean isDistinct, List<String> fields, Collection<String> tables, List<AggregationFn> aggregationFns, Predicate pred, List<String> groupByFields ,List<OrderByPair> orderByClause) {
-//       fields.addAll(groupByFields);
-       this.fields = fields;
+    public QueryData(boolean isDistinct, List<String> fields, Collection<String> tables, List<AggregationFn> aggregationFns, Predicate pred, List<String> groupByFields, List<OrderByPair> orderByClause) {
+      this.fields = fields;
       this.tables = tables;
       this.aggregationFns = aggregationFns;
       this.pred = pred;
