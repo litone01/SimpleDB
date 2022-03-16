@@ -6,6 +6,10 @@ import simpledb.query.Scan;
 public class DistinctScan implements Scan {
     private Scan s;
 
+    /**
+     * Create a groupby scan, given a distinct table scan.
+     * @param s the distinct scan
+     */
     public DistinctScan(Scan s){
         this.s = s;
     }

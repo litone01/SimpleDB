@@ -69,14 +69,30 @@ public class QueryData {
       return orderByClause;
    }
 
+   /**
+    * Returns a list of aggregation functions.
+    * If there is not aggregation function detected in the query,
+    * an empty list will be returned.
+    * @return a list of aggregation functions.
+    */
    public List<AggregationFn> aggregationFns() {
       return aggregationFns;
    }
 
+   /**
+    * Returns a list of group by fields.
+    * If there is no group by clause, an empty list will be returned.
+    * @return a list of group by fields.
+    */
    public List<String> groupByFields() {
       return groupByFields;
    }
 
+   /**
+    * Returns a boolean value isDistinct
+    * indicating whether there is a distinct clause or not
+    * @return a boolean value isDistinct
+    */
    public boolean isDistinct() {
       return isDistinct;
    }

@@ -84,9 +84,11 @@ public class DistinctPlan implements Plan {
         return result;
     }
     /**
-     * Returns an estimate of the number of block accesses
-     * that will occur when the scan is read to completion.
-     *
+     * Return the number of blocks in the distinct table,
+     * which is the same as it would be in a
+     * materialized table.
+     * It does not include the one-time cost
+     * of materializing and sorting the records.
      * @return the estimated number of block accesses
      */
     @Override
@@ -97,7 +99,8 @@ public class DistinctPlan implements Plan {
 
     /**
      * Returns an estimate of the number of records
-     * in the query's output table.
+     * in the distinct table.
+     * The output valus is the upper bound estimate of the precise value.
      *
      * @return the estimated number of output records
      */

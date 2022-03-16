@@ -59,7 +59,6 @@ public class HeuristicQueryPlanner implements QueryPlanner {
       if (!data.orderByClause().isEmpty()) {
          currentplan = new SortPlan(data.orderByClause(), tx, currentplan);
       }
-
       //step 6. return aggregate value
       if(!data.aggregationFns().isEmpty() || !data.groupByFields().isEmpty()){
          currentplan = new GroupByPlan(tx, currentplan, data.groupByFields(), data.aggregationFns());

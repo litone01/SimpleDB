@@ -76,9 +76,6 @@ public class Parser {
       lex.eatKeyword("select");
       List<String> fields = new ArrayList<>();
       //distinct
-      //case 1: select distinct a,b,c from table --> only support this case
-      //case 2: select count(distinct c) from table group by a --> not supported
-      //case 3: ？
       List<AggregationFn> aggregationFns = new ArrayList<>();
       boolean isDistinct = false;
       if(lex.matchKeyword("distinct")){
