@@ -17,18 +17,19 @@ public class QueryData {
    private List<OrderByPair> orderByClause;
    private List<AggregationFn> aggregationFns;
    private List<String> groupByFields;
+   private boolean isDistinct;
 
    /**
-    * Saves the field and table list and predicate and the order by clause.
+    * Saves the information related to the query.
     */
-    public QueryData(List<String> fields, Collection<String> tables, List<AggregationFn> aggregationFns, Predicate pred, List<String> groupByFields ,List<OrderByPair> orderByClause) {
-//       fields.addAll(groupByFields);
-       this.fields = fields;
+    public QueryData(boolean isDistinct, List<String> fields, Collection<String> tables, List<AggregationFn> aggregationFns, Predicate pred, List<String> groupByFields, List<OrderByPair> orderByClause) {
+      this.fields = fields;
       this.tables = tables;
       this.aggregationFns = aggregationFns;
       this.pred = pred;
       this.groupByFields = groupByFields;
       this.orderByClause = orderByClause;
+      this.isDistinct = isDistinct;
    }
    
    /**
@@ -67,12 +68,32 @@ public class QueryData {
       return orderByClause;
    }
 
+   /**
+    * Returns a list of aggregation functions.
+    * If there is not aggregation function detected in the query,
+    * an empty list will be returned.
+    * @return a list of aggregation functions.
+    */
    public List<AggregationFn> aggregationFns() {
       return aggregationFns;
    }
 
+   /**
+    * Returns a list of group by fields.
+    * If there is no group by clause, an empty list will be returned.
+    * @return a list of group by fields.
+    */
    public List<String> groupByFields() {
       return groupByFields;
+   }
+
+   /**
+    * Returns a boolean value isDistinct
+    * indicating whether there is a distinct clause or not
+    * @return a boolean value isDistinct
+    */
+   public boolean isDistinct() {
+      return isDistinct;
    }
 
    public String toString() {
