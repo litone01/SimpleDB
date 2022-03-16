@@ -22,7 +22,6 @@ class TablePlanner {
    private Schema myschema;
    private Map<String,IndexInfo> indexes;
    private Transaction tx;
-   private String tblname;
    
    /**
     * Creates a new table planner.
@@ -40,7 +39,6 @@ class TablePlanner {
       myplan   = new TablePlan(tx, tblname, mdm);
       myschema = myplan.schema();
       indexes  = mdm.getIndexInfo(tblname, tx);
-      this.tblname = tblname;
    }
    
    /**
@@ -180,9 +178,5 @@ class TablePlanner {
          return new SelectPlan(p, joinpred);
       else
          return p;
-   }
-
-   public String getTableName() {
-      return tblname;
    }
 }
