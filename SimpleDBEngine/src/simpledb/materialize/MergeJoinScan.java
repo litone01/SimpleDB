@@ -11,6 +11,7 @@ public class MergeJoinScan implements Scan {
    private SortScan s2;
    private String fldname1, fldname2;
    private Constant joinval = null;
+   private boolean hasmore = false;
    
    /**
     * Create a mergejoin scan for the two underlying sorted scans.
@@ -32,6 +33,9 @@ public class MergeJoinScan implements Scan {
     * @see simpledb.query.Scan#close()
     */
    public void close() {
+       if(!hasmore){
+           return;
+       }
       s1.close();
       s2.close();
    }
@@ -43,6 +47,14 @@ public class MergeJoinScan implements Scan {
     * @see simpledb.query.Scan#beforeFirst()
     */
    public void beforeFirst() {
+      s1.beforeFirst();
+      s2.beforeFirst();
+      if(s1.next()&&s2.next()){
+          hasmore = true;
+      }
+      if(!hasmore){
+          return;
+      }
       s1.beforeFirst();
       s2.beforeFirst();
    }
@@ -61,6 +73,9 @@ public class MergeJoinScan implements Scan {
     * @see simpledb.query.Scan#next()
     */
    public boolean next() {
+       if(!hasmore){
+           return false;
+       }
       boolean hasmore2 = s2.next();
       
       if (joinval == null) {
