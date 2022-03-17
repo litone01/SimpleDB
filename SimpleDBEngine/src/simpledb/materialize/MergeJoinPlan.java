@@ -15,6 +15,8 @@ public class MergeJoinPlan implements Plan {
    private Plan p1, p2;
    private String fldname1, fldname2;
    private Schema sch = new Schema();
+   private Plan mp1, mp2;
+
    
    /**
     * Creates a mergejoin plan for the two specified queries.
@@ -29,10 +31,12 @@ public class MergeJoinPlan implements Plan {
    public MergeJoinPlan(Transaction tx, Plan p1, Plan p2, String fldname1, String fldname2) {
       this.fldname1 = fldname1;
       List<String> sortlist1 = Arrays.asList(fldname1);
+      mp1 = new MaterializePlan(tx, p1);
       this.p1 = new SortPlan(tx, p1, sortlist1);
       
       this.fldname2 = fldname2;
       List<String> sortlist2 = Arrays.asList(fldname2);
+      mp2 = new MaterializePlan(tx, p2);
       this.p2 = new SortPlan(tx, p2, sortlist2);
       
       sch.addAll(p1.schema());
@@ -62,7 +66,7 @@ public class MergeJoinPlan implements Plan {
     * @see simpledb.plan.Plan#blocksAccessed()
     */
    public int blocksAccessed() {
-      return p1.blocksAccessed() + p2.blocksAccessed();
+      return p1.blocksAccessed() + p2.blocksAccessed() + mp1.blocksAccessed() + mp2.blocksAccessed();
    }
    
    /**
