@@ -41,10 +41,11 @@ public class HeuristicQueryPlanner implements QueryPlanner {
       // Repeatedly add a plan to the join order
       while (!tableplanners.isEmpty()) {
          Plan p = getLowestJoinPlan(currentplan);
-         if (p != null)
+         if (p != null) {
             currentplan = p;
-         else  // no applicable join
+         } else { // no applicable join
             currentplan = getLowestProductPlan(currentplan);
+         }
       }
       
       // Execute group by and aggregate functions if applicable
@@ -65,6 +66,10 @@ public class HeuristicQueryPlanner implements QueryPlanner {
          currentplan = new SortPlan(data.orderByClause(), tx, currentplan);
       }
 
+      System.out.println("---------------QUERY PLAN---------------");
+      System.out.println(currentplan.toString());
+      System.out.println("----------------------------------------");
+      
       return currentplan;
    }
    
@@ -92,8 +97,9 @@ public class HeuristicQueryPlanner implements QueryPlanner {
             bestplan = plan;
          }
       }
-      if (bestplan != null)
+      if (bestplan != null) {
          tableplanners.remove(besttp);
+      }
       return bestplan;
    }
    
