@@ -69,9 +69,9 @@ class TablePlanner {
          return null;
       // Plan p = makeIndexJoin(current, currsch);
       // If used block nested loop join as default, uncomment this
-      Plan p = makeNestedLoopJoin(current, currsch);
+      // Plan p = makeNestedLoopJoin(current, currsch);
       // If used merge join as default, uncomment this
-      // Plan p = makeMergeJoin(current, currsch);
+      Plan p = makeMergeJoin(current, currsch);
       // If used hash join as default, uncomment this
       // Plan p = makeHashJoin(current, currsch);
       // if (p == null)
