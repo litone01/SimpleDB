@@ -178,9 +178,9 @@ public class SortPlan implements Plan {
     @Override
     public String toString() {
        if (isOrderByClauseSpecified) {
-          return "order by " + orderByFields.toString();
+          return p.toString() + " order by " + orderByFields.toString();
        } else {
-          return "";
+          return p.toString();
        }
     }
 }
