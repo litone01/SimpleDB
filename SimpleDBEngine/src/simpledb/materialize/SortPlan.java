@@ -3,6 +3,7 @@ package simpledb.materialize;
 import java.util.*;
 import simpledb.tx.Transaction;
 import simpledb.record.*;
+import simpledb.server.SimpleDB;
 import simpledb.plan.Plan;
 import simpledb.query.*;
 
@@ -17,6 +18,7 @@ public class SortPlan implements Plan {
    private RecordComparator comp;
    private boolean isOrderByClauseSpecified;
    private List<OrderByPair> orderByFields;
+   private int numberOfSortedRuns = -1;
    
    // TODO: can we resolve and update the dependency with GroupByPlan and MergeJoinPlan
    /**
@@ -59,6 +61,7 @@ public class SortPlan implements Plan {
    public Scan open() {
       Scan src = p.open();
       List<TempTable> runs = splitIntoRuns(src);
+      System.out.println("after split into runs");
       src.close();
       while (runs.size() > 1)
          runs = doAMergeIteration(runs);
@@ -76,7 +79,11 @@ public class SortPlan implements Plan {
    public int blocksAccessed() {
       // does not include the one-time cost of sorting
       Plan mp = new MaterializePlan(tx, p); // not opened; just for analysis
-      return mp.blocksAccessed();
+      if (numberOfSortedRuns == -1) {
+         numberOfSortedRuns = (int) Math.ceil(mp.blocksAccessed() / SimpleDB.BUFFER_SIZE);
+      }
+      int numIteration = (int) Math.ceil(Math.log(numberOfSortedRuns) / Math.log(SimpleDB.BUFFER_SIZE - 1)) + 1;
+      return 2 * mp.blocksAccessed() * numIteration;
    }
    
    /**
@@ -112,6 +119,7 @@ public class SortPlan implements Plan {
       src.beforeFirst();
       if (!src.next())
          return temps;
+      numberOfSortedRuns = 1;
       TempTable currenttemp = new TempTable(tx, sch);
       temps.add(currenttemp);
       UpdateScan currentscan = currenttemp.open();
@@ -119,6 +127,7 @@ public class SortPlan implements Plan {
          if (comp.compare(src, currentscan) < 0) {
          // start a new run
          currentscan.close();
+         numberOfSortedRuns++;
          currenttemp = new TempTable(tx, sch);
          temps.add(currenttemp);
          currentscan = (UpdateScan) currenttemp.open();
