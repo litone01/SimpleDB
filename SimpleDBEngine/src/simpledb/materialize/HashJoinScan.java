@@ -15,6 +15,7 @@ public class HashJoinScan implements Scan {
     private String fldname1, fldname2;
     Map<Integer, TempTable> temps1;
     Map<Integer, TempTable> temps2;
+    Map<Integer, TempTable> checkedtemps2;
     Plan p2;
     
     Map<Integer, List<Map<String, Constant>>> inMemoryHashMap;
@@ -25,6 +26,7 @@ public class HashJoinScan implements Scan {
     boolean hasmore1;
     // fldname and value for current matching record from s2
     Map<String, Constant> currentS2Val;
+    boolean firstBuild;
 
     /**
      * Create a hash join scan for the two sets of partitions.
@@ -51,10 +53,9 @@ public class HashJoinScan implements Scan {
      * @see simpledb.query.Scan#beforeFirst()
      */
     public void beforeFirst() {
-        buildNextInMemoryHashTable();
-        if (inMemoryHashMap.size() != 0) {
-            s1.beforeFirst();
-        }
+        firstBuild = true;
+        positionS2 = 0;
+        checkedtemps2 = new HashMap<>();
     }
 
     /**
@@ -64,6 +65,14 @@ public class HashJoinScan implements Scan {
      * @see simpledb.query.Scan#next()
      */
     public boolean next() {
+        if (firstBuild) {
+            buildNextInMemoryHashTable();
+            if (inMemoryHashMap.size() != 0) {
+                s1.beforeFirst();
+            }
+            firstBuild = false;
+        }
+
         // if there is no available/matching s2 partition, no join record
         if (inMemoryHashMap.size() == 0) {
             return false;
@@ -120,22 +129,31 @@ public class HashJoinScan implements Scan {
         if (temps2.size() == 0){
             return false;
         }
+
         Set<Integer> allTemps2Keys = temps2.keySet();
 
         // build hash table for first s2 partition that has a matching s1 partition
         // 1. find the s2 partition
         for (Integer key : allTemps2Keys) {
+            if (checkedtemps2.get(key) != null) {
+                continue;
+            }
             TempTable tempTable1 = temps1.get(key);
             // skip s2 partitions does not have a matching s1 partition
             if (tempTable1 == null) {
-                temps2.remove(key);
+                checkedtemps2.put(key, temps2.get(key));
             } else {
                 tempTable2 = temps2.get(key);
                 s1 = (UpdateScan) tempTable1.open();
-                temps2.remove(key);
+                checkedtemps2.put(key, temps2.get(key));
                 break;
             }
         }
+        // if all partition 2 are checked, cannot build new in memory hash table, return false
+        if (tempTable2 == null) {
+            return false;
+        }
+
         s2 = (UpdateScan) tempTable2.open();
         s2.beforeFirst();
 
