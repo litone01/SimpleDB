@@ -98,7 +98,7 @@ class TablePlanner {
             IndexInfo ii = indexes.get(fldname);
             String indexType = ii.getIndexType();
             System.out.println(indexType + " index on " + fldname + " used");
-            return new IndexSelectPlan(myplan, ii, val);
+            return new IndexSelectPlan(myplan, ii, val, fldname);
          }
       }
       return null;

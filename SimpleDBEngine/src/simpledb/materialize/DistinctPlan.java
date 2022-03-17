@@ -239,4 +239,12 @@ public class DistinctPlan implements Plan {
         return src.next();
     }
 
+    /**
+    * Return the string representation of order by plan
+    */
+    @Override
+    public String toString() {
+        return "( " + p.toString() + " distinct " + distinctFields.toString() + " )";
+    }
+
 }

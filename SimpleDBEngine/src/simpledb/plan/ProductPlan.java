@@ -76,4 +76,11 @@ public class ProductPlan implements Plan {
    public Schema schema() {
       return schema;
    }
+
+   /**
+    * Return the string representation of this query plan
+    */
+    public String toString() {
+      return "( " + p1.toString() + " product join " + p2.toString() + " )";
+  }
 }

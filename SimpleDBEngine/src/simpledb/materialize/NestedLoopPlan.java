@@ -118,4 +118,12 @@ public class NestedLoopPlan implements Plan {
         dest.close();
         return t;
     }
+
+    /**
+    * Return the string representation of this query plan
+    */
+    public String toString() {
+        return "( " + lhs.toString() + " block nested loop join " + rhs.toString() + 
+        " on " + fldname1 + opr.toString() + fldname2 + " )";
+    }
 }
