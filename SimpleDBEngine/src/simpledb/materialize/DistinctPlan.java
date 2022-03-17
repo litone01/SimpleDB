@@ -4,6 +4,7 @@ import simpledb.plan.Plan;
 import simpledb.query.Scan;
 import simpledb.query.UpdateScan;
 import simpledb.record.Schema;
+import simpledb.server.SimpleDB;
 import simpledb.tx.Transaction;
 
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ public class DistinctPlan implements Plan {
     private List<String> distinctFields;
     private RecordComparator comp;
     private boolean onlyOneRun;
+    private int numberOfSortedRuns = -1;
 
     public DistinctPlan(Plan p, List<String> distinctFields, Transaction tx) {
         this.onlyOneRun = true;
@@ -97,7 +99,11 @@ public class DistinctPlan implements Plan {
     @Override
     public int blocksAccessed() {
         Plan mp = new MaterializePlan(tx, p); // not opened; just for analysis
-        return mp.blocksAccessed();
+        if (numberOfSortedRuns == -1) {
+           numberOfSortedRuns = (int) Math.ceil(mp.blocksAccessed() / SimpleDB.BUFFER_SIZE);
+        }
+        int numIteration = (int) Math.ceil(Math.log(numberOfSortedRuns) / Math.log(SimpleDB.BUFFER_SIZE - 1)) + 1;
+        return 2 * mp.blocksAccessed() * numIteration;
     }
 
     /**
@@ -140,6 +146,7 @@ public class DistinctPlan implements Plan {
         if (!src.next()) {
             return temps;
         }
+        numberOfSortedRuns = 1;
         TempTable currenttemp = new TempTable(tx, sch);
         temps.add(currenttemp);
         UpdateScan currentscan = currenttemp.open();
@@ -148,6 +155,7 @@ public class DistinctPlan implements Plan {
                 onlyOneRun = false;
                 // start a new run
                 currentscan.close();
+                numberOfSortedRuns++;
                 currenttemp = new TempTable(tx, sch);
                 temps.add(currenttemp);
                 currentscan = (UpdateScan) currenttemp.open();
