@@ -94,4 +94,12 @@ public class HashJoinPlan implements Plan {
    public Schema schema() {
       return schema;
    }
+
+   /**
+    * Return the string representation of this query plan
+    */
+   public String toString() {
+      return "( " + p1.toString() + " hash join " + p2.toString() + 
+      " on " + fldname1 + "=" + fldname2 + " )";
+   }
 }
