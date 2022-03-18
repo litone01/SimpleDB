@@ -125,7 +125,7 @@ class TablePlanner {
          if (currfield != null && currsch.hasField(currfield)) {
             Operator opr = mypred.getMatchedOperatorByTermFieldNames(fldname, currfield);
             Plan nestedLoopJoinPlan = 
-               new NestedLoopPlan(tx, myplan, current, fldname, currfield, opr);
+               new NestedLoopPlan(tx, current, myplan, currfield, fldname, opr);
             nestedLoopJoinPlan = addSelectPred(nestedLoopJoinPlan);
             return addJoinPred(nestedLoopJoinPlan, currsch);
          }
@@ -138,7 +138,7 @@ class TablePlanner {
          String currfield = mypred.equatesWithField(fldname);
          if (currfield != null && currsch.hasField(currfield)) {
             Plan hashJoinPlan = 
-               new HashJoinPlan(tx, myplan, current, fldname, currfield);
+               new HashJoinPlan(tx, current, myplan, currfield, fldname);
             hashJoinPlan = addSelectPred(hashJoinPlan);
             return addJoinPred(hashJoinPlan, currsch);
          }
@@ -150,7 +150,7 @@ class TablePlanner {
       for (String fldname : myschema.fields()) {
          String currfield = mypred.equatesWithField(fldname);
          if (currfield != null && currsch.hasField(currfield)) {
-            Plan mergeJoinPlan = new MergeJoinPlan(tx, myplan, current, fldname, currfield);
+            Plan mergeJoinPlan = new MergeJoinPlan(tx, current, myplan, currfield, fldname);
             mergeJoinPlan = addSelectPred(mergeJoinPlan);
             Plan result = addJoinPred(mergeJoinPlan, currsch);
             return result;

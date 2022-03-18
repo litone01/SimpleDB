@@ -23,9 +23,7 @@ public class DistinctTest {
             // analogous to the result set
             Scan s = p.open();
 
-//            System.out.println("Name\tMajor");
             while (s.next()) {
-
                 int majorid = s.getInt("majorid");
                 int gradyear = s.getInt("gradyear");//in lower case
 

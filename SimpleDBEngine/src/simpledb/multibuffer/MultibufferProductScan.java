@@ -15,6 +15,7 @@ public class MultibufferProductScan implements Scan {
    private String filename;
    private Layout layout;
    private int chunksize, nextblknum, filesize;
+   private boolean hasNextChunk;
    
    
    /**
@@ -42,7 +43,7 @@ public class MultibufferProductScan implements Scan {
     */
    public void beforeFirst() {
       nextblknum = 0;
-      useNextChunk();
+      hasNextChunk = useNextChunk();
    }
    
    /**
@@ -54,6 +55,9 @@ public class MultibufferProductScan implements Scan {
     * @see simpledb.query.Scan#next()
     */
    public boolean next() {
+      if (!hasNextChunk) {
+         return false;
+      }
       while (!prodscan.next()) 
          if (!useNextChunk())
          return false;

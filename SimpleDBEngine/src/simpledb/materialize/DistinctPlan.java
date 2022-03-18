@@ -47,16 +47,23 @@ public class DistinctPlan implements Plan {
             // then we will never enter this loop to do any merging and duplicate removal
             runs = doAMergeIteration(runs);
         }
+
+        List<TempTable> results = new ArrayList<>();
+
+        if(runs.size()==0){
+            return new DistinctScan(results);
+        }
+
         Scan result;
         TempTable temp = runs.get(0);
         if(onlyOneRun) {
             // if there is only one run
             // we will explicitly handle it
-            result = removeDuplicates(temp).open();
+            results.add(removeDuplicates(temp));
         } else {
-            result = temp.open();
+            results.add(temp);
         }
-        return new DistinctScan(result);
+        return new DistinctScan(results);
     }
 
     /**

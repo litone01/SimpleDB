@@ -2,6 +2,10 @@ package simpledb.materialize;
 
 import simpledb.query.*;
 
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 /**
  * The <i>count</i> aggregation function.
  * @author Edward Sciore
@@ -9,13 +13,18 @@ import simpledb.query.*;
 public class CountFn implements AggregationFn {
    private String fldname;
    private int count;
+   private boolean isDistinct;
+   private Set<Constant> distinctValues;
    
    /**
     * Create a count aggregation function for the specified field.
     * @param fldname the name of the aggregated field
+    * @param isDistinct boolean value indicating whether the aggregate is distinct
     */
-   public CountFn(String fldname) {
+   public CountFn(String fldname, boolean isDistinct) {
       this.fldname = fldname;
+      this.isDistinct = isDistinct;
+      distinctValues = new HashSet<>();
    }
    
    /**
@@ -27,7 +36,15 @@ public class CountFn implements AggregationFn {
     * @see simpledb.materialize.AggregationFn#processFirst(simpledb.query.Scan)
     */
    public void processFirst(Scan s) {
-      count = 1;
+      if (isDistinct) {
+         distinctValues = new HashSet<>();
+         distinctValues.add(s.getVal(fldname));
+      } else {
+         count = 1;
+      }
+//      if(isDistinct){
+//         System.out.println(s.getVal(fldname) + " " + s.getVal("gradyear"));
+//      }
    }
    
    /**
@@ -37,7 +54,11 @@ public class CountFn implements AggregationFn {
     * @see simpledb.materialize.AggregationFn#processNext(simpledb.query.Scan)
     */
    public void processNext(Scan s) {
-      count++;
+      if(isDistinct){
+         distinctValues.add(s.getVal(fldname));
+      } else{
+         count++;
+      }
    }
    
    /**
@@ -45,7 +66,11 @@ public class CountFn implements AggregationFn {
     * @see simpledb.materialize.AggregationFn#fieldName()
     */
    public String fieldName() {
-      return "countof" + fldname;
+      if(isDistinct){
+         return "countofdistinct" + fldname;
+      } else {
+         return "countof" + fldname;
+      }
    }
    
    /**
@@ -53,6 +78,11 @@ public class CountFn implements AggregationFn {
     * @see simpledb.materialize.AggregationFn#value()
     */
    public Constant value() {
-      return new Constant(count);
+      if(isDistinct){
+         int distinctCount = distinctValues.size();
+         return new Constant(distinctCount);
+      } else{
+         return new Constant(count);
+      }
    }
 }

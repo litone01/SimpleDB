@@ -7,13 +7,16 @@ public class MinFn implements AggregationFn {
 
     private String fldname;
     private Constant val;
+    private boolean isDistinct;
 
     /**
      * Create a min aggregation function for the specified field.
      * @param fldname the name of the aggregated field
+     * @param isDistinct boolean value indicating whether the aggregate is distinct
      */
-    public MinFn(String fldname) {
+    public MinFn(String fldname, boolean isDistinct) {
         this.fldname = fldname;
+        this.isDistinct = isDistinct;
     }
 
     /**
