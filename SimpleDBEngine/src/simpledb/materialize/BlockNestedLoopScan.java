@@ -8,6 +8,7 @@ public class BlockNestedLoopScan implements Scan {
    private Scan s1, s2;
    private String fldname1, fldname2;
    private Operator opr;
+   private boolean hasmore2 = false;
 
    /**
     * Create a block nested loop scan.
@@ -36,7 +37,7 @@ public class BlockNestedLoopScan implements Scan {
    public void beforeFirst() {
       s1.beforeFirst();
       s2.beforeFirst();
-      s2.next();
+      hasmore2 = s2.next();
    }
 
    /**
@@ -49,7 +50,12 @@ public class BlockNestedLoopScan implements Scan {
     * @see simpledb.query.Scan#next()
     */
    public boolean next() {
-      Constant currS2 = s2.getVal(fldname2);
+      Constant currS2;
+      if (hasmore2) {
+         currS2 = s2.getVal(fldname2);
+      } else {
+         return false;
+      }
 
       while (s1.next()) {
          if (opr.check(s1.getVal(fldname1), currS2)) {
