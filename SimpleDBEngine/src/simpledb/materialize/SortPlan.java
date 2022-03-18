@@ -20,7 +20,6 @@ public class SortPlan implements Plan {
    private List<OrderByPair> orderByFields;
    private int numberOfSortedRuns = -1;
    
-   // TODO: can we resolve and update the dependency with GroupByPlan and MergeJoinPlan
    /**
     * Create a sort plan for the specified query.
     * @param p the plan for the underlying query
@@ -35,8 +34,6 @@ public class SortPlan implements Plan {
       isOrderByClauseSpecified = false;
    }
    
-   // TODO: can we solve the issue when overloading RecordComparator consturctor 
-   // and dont take in the boolean?
    /**
     * Overloaded constructor, create a sort plan for the specified query.
     * @param orderByFields the fields to sort by based on the order by clause
@@ -61,7 +58,6 @@ public class SortPlan implements Plan {
    public Scan open() {
       Scan src = p.open();
       List<TempTable> runs = splitIntoRuns(src);
-      System.out.println("after split into runs");
       src.close();
       while (runs.size() > 1)
          runs = doAMergeIteration(runs);
