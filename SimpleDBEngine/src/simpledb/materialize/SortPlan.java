@@ -78,7 +78,7 @@ public class SortPlan implements Plan {
       if (numberOfSortedRuns == -1) {
          numberOfSortedRuns = (int) Math.ceil(mp.blocksAccessed() / SimpleDB.BUFFER_SIZE);
       }
-      int numIteration = (int) Math.ceil(Math.log(numberOfSortedRuns) / Math.log(SimpleDB.BUFFER_SIZE - 1)) + 1;
+      int numIteration = (int) Math.ceil(Math.log(numberOfSortedRuns) / Math.log(2)) + 1;
       return 2 * mp.blocksAccessed() * numIteration;
    }
    
