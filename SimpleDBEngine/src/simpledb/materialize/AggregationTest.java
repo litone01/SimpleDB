@@ -10,7 +10,7 @@ public class AggregationTest {
     public static void main(String[] args) {
         try {
             // analogous to the driver
-            SimpleDB db = new SimpleDB("db_studentdb");
+            SimpleDB db = new SimpleDB("studentdb");
 
             // analogous to the connection
             Transaction tx  = db.newTx();

@@ -3,15 +3,26 @@ package simpledb.materialize;
 import simpledb.query.Constant;
 import simpledb.query.Scan;
 
+import java.util.List;
+
 public class DistinctScan implements Scan {
     private Scan s;
+    private boolean isEmpty = false;
+    private List<TempTable> runs;
+
 
     /**
-     * Create a groupby scan, given a distinct table scan.
-     * @param s the distinct scan
+     * Create a distinct scan.
+     * @param runs the distinct scan
      */
-    public DistinctScan(Scan s){
-        this.s = s;
+    public DistinctScan(List<TempTable> runs) {
+        if(runs.size()==0){
+            isEmpty = true;
+        }
+        this.runs = runs;
+        if(!isEmpty){
+            s = runs.get(0).open();
+        }
     }
 
     /**
@@ -20,6 +31,9 @@ public class DistinctScan implements Scan {
      */
     @Override
     public void beforeFirst() {
+        if(isEmpty){
+            return;
+        }
         s.beforeFirst();
     }
 
@@ -30,6 +44,9 @@ public class DistinctScan implements Scan {
      */
     @Override
     public boolean next() {
+        if(isEmpty){
+            return false;
+        }
         return s.next();
     }
 
@@ -85,6 +102,8 @@ public class DistinctScan implements Scan {
      */
     @Override
     public void close() {
-        s.close();
+        if(s!=null){
+            s.close();
+        }
     }
 }

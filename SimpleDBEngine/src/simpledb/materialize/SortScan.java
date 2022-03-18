@@ -18,6 +18,8 @@ public class SortScan implements Scan {
    private RecordComparator comp;
    private boolean hasmore1, hasmore2=false;
    private List<RID> savedposition;
+
+   boolean isEmpty = false;
    
    /**
     * Create a sort scan, given a list of 1 or 2 runs.
@@ -27,12 +29,17 @@ public class SortScan implements Scan {
     * @param comp the record comparator
     */
    public SortScan(List<TempTable> runs, RecordComparator comp) {
-      this.comp = comp;
-      s1 = (UpdateScan) runs.get(0).open();
-      hasmore1 = s1.next();
-      if (runs.size() > 1) {
-         s2 = (UpdateScan) runs.get(1).open();
-         hasmore2 = s2.next();
+      if(runs.size()==0){
+         isEmpty = true;
+      }
+      if(!isEmpty){
+         this.comp = comp;
+         s1 = (UpdateScan) runs.get(0).open();
+         hasmore1 = s1.next();
+         if (runs.size() > 1) {
+            s2 = (UpdateScan) runs.get(1).open();
+            hasmore2 = s2.next();
+         }
       }
    }
    
@@ -44,6 +51,9 @@ public class SortScan implements Scan {
     * @see simpledb.query.Scan#beforeFirst()
     */
    public void beforeFirst() {
+      if(isEmpty){
+         return;
+      }
       currentscan = null;
       s1.beforeFirst();
       hasmore1 = s1.next();
@@ -61,6 +71,9 @@ public class SortScan implements Scan {
     * @see simpledb.query.Scan#next()
     */
    public boolean next() {
+      if(isEmpty){
+         return false;
+      }
       if (currentscan != null) {
          if (currentscan == s1)
             hasmore1 = s1.next();
@@ -88,7 +101,9 @@ public class SortScan implements Scan {
     * @see simpledb.query.Scan#close()
     */
    public void close() {
-      s1.close();
+      if(s1!=null){
+         s1.close();
+      }
       if (s2 != null)
          s2.close();
    }
