@@ -3,18 +3,26 @@ package simpledb.materialize;
 import simpledb.query.Constant;
 import simpledb.query.Scan;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class AvgFn implements AggregationFn{
     private String fldname;
     private int sum;
     private int count;
     private int avg;
+    private boolean isDistinct;
+    private Set<Integer> distinctValues;
 
     /**
      * Create a avg aggregation function for the specified field.
      * @param fldname the name of the aggregated field
+     * @param isDistinct boolean value indicating whether the aggregate is distinct
      */
-    public AvgFn(String fldname) {
+    public AvgFn(String fldname, boolean isDistinct) {
         this.fldname = fldname;
+        this.isDistinct = isDistinct;
+        this.distinctValues = new HashSet<>();
     }
 
     /**
@@ -30,9 +38,14 @@ public class AvgFn implements AggregationFn{
      */
     @Override
     public void processFirst(Scan s) {
-        count = 1;
-        sum = s.getInt(fldname);
-        avg = sum;
+        if(isDistinct){
+            this.distinctValues = new HashSet<>();
+            distinctValues.add(s.getInt(fldname));
+        } else{
+            count = 1;
+            sum = s.getInt(fldname);
+            avg = sum;
+        }
     }
 
     /**
@@ -44,10 +57,14 @@ public class AvgFn implements AggregationFn{
      */
     @Override
     public void processNext(Scan s) {
-        int curr = s.getInt(fldname);
-        sum += curr;
-        count++;
-        avg = sum/count;
+        if(isDistinct){
+            distinctValues.add(s.getInt(fldname));
+        } else {
+            int curr = s.getInt(fldname);
+            sum += curr;
+            count++;
+            avg = sum/count;
+        }
     }
 
     /**
@@ -56,7 +73,11 @@ public class AvgFn implements AggregationFn{
      */
     @Override
     public String fieldName() {
-        return "avgof" + fldname;
+        if(isDistinct){
+            return "avgofdistinct" + fldname;
+        } else{
+            return "avgof" + fldname;
+        }
     }
 
     /**
@@ -65,6 +86,17 @@ public class AvgFn implements AggregationFn{
      */
     @Override
     public Constant value() {
-        return new Constant(avg);
+        if(isDistinct){
+            int size = distinctValues.size();
+            int distinctSum = 0;
+            for(Integer i: distinctValues){
+                distinctSum+=i;
+            }
+            int distinctAvg = distinctSum/size;
+            return new Constant(distinctAvg);
+        } else{
+            return new Constant(avg);
+        }
+
     }
 }

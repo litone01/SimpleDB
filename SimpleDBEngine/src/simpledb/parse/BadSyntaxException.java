@@ -9,4 +9,7 @@ package simpledb.parse;
 public class BadSyntaxException extends RuntimeException {
    public BadSyntaxException() {
    }
+   public BadSyntaxException(String errorMessage) {
+      super(errorMessage);
+   }
 }
