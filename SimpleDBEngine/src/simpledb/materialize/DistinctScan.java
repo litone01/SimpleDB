@@ -102,9 +102,8 @@ public class DistinctScan implements Scan {
      */
     @Override
     public void close() {
-        if(isEmpty){
-            return;
+        if(s!=null){
+            s.close();
         }
-        s.close();
     }
 }

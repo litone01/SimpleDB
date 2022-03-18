@@ -101,10 +101,9 @@ public class SortScan implements Scan {
     * @see simpledb.query.Scan#close()
     */
    public void close() {
-      if(isEmpty){
-         return;
+      if(s1!=null){
+         s1.close();
       }
-      s1.close();
       if (s2 != null)
          s2.close();
    }

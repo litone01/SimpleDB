@@ -33,11 +33,12 @@ public class MergeJoinScan implements Scan {
     * @see simpledb.query.Scan#close()
     */
    public void close() {
-       if(!hasmore){
-           return;
+       if(s1!=null){
+           s1.close();
        }
-      s1.close();
-      s2.close();
+       if(s2!=null){
+           s2.close();
+       }
    }
    
   /**
