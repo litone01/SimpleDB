@@ -73,6 +73,7 @@ public class Parser {
    
    public QueryData query() {
       lex.eatKeyword("select");
+
       List<String> fields = new ArrayList<>();
 
       // distinct
@@ -87,27 +88,32 @@ public class Parser {
       while(true){
          String field;
          if(lex.matchAggregationFn()){
+            boolean isDistinctAggregate = false;
             String aggregate = lex.eatAggregationFn();
             lex.eatDelim('(');
+            if(lex.matchKeyword("distinct")){
+               lex.eatKeyword("distinct");
+               isDistinctAggregate = true;
+            }
             field = field();
             lex.eatDelim(')');
 
             AggregationFn aggregationFn = null;
             switch(aggregate){
                case "min":
-                  aggregationFn = new MinFn(field);
+                  aggregationFn = new MinFn(field, isDistinctAggregate);
                   break;
                case "max":
-                  aggregationFn = new MaxFn(field);
+                  aggregationFn = new MaxFn(field, isDistinctAggregate);
                   break;
                case "avg":
-                  aggregationFn = new AvgFn(field);
+                  aggregationFn = new AvgFn(field, isDistinctAggregate);
                   break;
                case "sum":
-                  aggregationFn = new SumFn(field);
+                  aggregationFn = new SumFn(field, isDistinctAggregate);
                   break;
                case "count":
-                  aggregationFn = new CountFn(field);
+                  aggregationFn = new CountFn(field, isDistinctAggregate);
                   break;
             }
 
@@ -126,6 +132,7 @@ public class Parser {
 
       // from
       lex.eatKeyword("from");
+
       Collection<String> tables = tableList();
       Predicate pred = new Predicate();
       if (lex.matchKeyword("where")) {

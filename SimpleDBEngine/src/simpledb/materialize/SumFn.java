@@ -3,17 +3,24 @@ package simpledb.materialize;
 import simpledb.query.Constant;
 import simpledb.query.Scan;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class SumFn implements AggregationFn {
 
     private String fldname;
     private int sum;
-
+    private boolean isDistinct;
+    private Set<Integer> distinctValues;
     /**
      * Create a sum aggregation function for the specified field.
      * @param fldname the name of the aggregated field
+     * @param isDistinct boolean value indicating whether the aggregate is distinct
      */
-    public SumFn(String fldname) {
+    public SumFn(String fldname, boolean isDistinct) {
         this.fldname = fldname;
+        this.isDistinct = isDistinct;
+        distinctValues = new HashSet<>();
     }
 
     /**
@@ -27,7 +34,12 @@ public class SumFn implements AggregationFn {
      */
     @Override
     public void processFirst(Scan s) {
-        sum = s.getInt(fldname);
+        if(isDistinct) {
+            distinctValues = new HashSet<>();
+            distinctValues.add(s.getInt(fldname));
+        } else{
+            sum = s.getInt(fldname);
+        }
     }
 
     /**
@@ -38,7 +50,12 @@ public class SumFn implements AggregationFn {
      */
     @Override
     public void processNext(Scan s) {
-        sum += s.getInt(fldname);
+
+        if(isDistinct) {
+            distinctValues.add(s.getInt(fldname));
+        } else{
+            sum += s.getInt(fldname);
+        }
     }
 
     /**
@@ -47,7 +64,12 @@ public class SumFn implements AggregationFn {
      */
     @Override
     public String fieldName() {
-        return "sumof" + fldname;
+        if(isDistinct){
+            return "sumofdistinct" + fldname;
+        } else{
+            return "sumof" + fldname;
+        }
+
     }
 
     /**
@@ -56,6 +78,14 @@ public class SumFn implements AggregationFn {
      */
     @Override
     public Constant value() {
-        return new Constant(sum);
+        if(isDistinct){
+            int distinctSum = 0;
+            for(Integer i: distinctValues) {
+                distinctSum += i;
+            }
+            return new Constant(distinctSum);
+        } else {
+            return new Constant(sum);
+        }
     }
 }
