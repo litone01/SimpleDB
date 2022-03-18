@@ -61,8 +61,9 @@ public class MergeJoinPlan implements Plan {
     * pass through each table, the method returns
     * the sum of the block accesses of the 
     * materialized sorted tables.
-    * It does <i>not</i> include the one-time cost
-    * of materializing and sorting the records.
+    * It include the one-time cost
+    * of materializing and sorting the records by taking sorting cost of plan p1 + sorting cost of plan p2.
+    * Besides the sorting cost, we return the scanning cost of mp1(materialized plan p1) + scanning cost of mp2(materialized plan p2). 
     * @see simpledb.plan.Plan#blocksAccessed()
     */
    public int blocksAccessed() {
