@@ -56,8 +56,8 @@ public class HashJoinPlan implements Plan {
     * Return the number of block acceses required.
     * This is calculated based on the formula:
     *    3 * (|p1| + |p2|)
-    *    where |p1| is the number of pages for table represented by p1
-    *          |p2| is the number of pages for table represented by p2
+    *    where |p1| is the number of blocks for table represented by p1
+    *          |p2| is the number of blocks for table represented by p2
     * As usual, we assume that we have enough buffers to hold the 
     *    in-memory hash table for the largest partition present.
     */

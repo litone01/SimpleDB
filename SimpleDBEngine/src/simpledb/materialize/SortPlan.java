@@ -65,16 +65,24 @@ public class SortPlan implements Plan {
    }
    
    /**
-    * Return the number of blocks in the sorted table,
-    * which is the same as it would be in a
-    * materialized table.
-    * It does <i>not</i> include the one-time cost
-    * of materializing and sorting the records.
+    * Returns an estimate of the number of block accesses that 
+    * will occur when the scan is read to completion.
+    * The number of blocks in the sorted table,
+    * is the same as it would be in a
+    * materialized table, given by mp.blocksAccessed().
+    * The one-time cost
+    * of materializing and sorting the records is done by fist getting the number of sorted runs.
+    * If the splitIntoSortedRun method was called before we invoke blockAccessed(), 
+    * the numbeOfSortedRuns will be the actual number of sorted runs. 
+    * If not, we return an estimate of blockAccessed/bufferSize even if this sort plan do not 
+    * sort in the same way as what we learnt in lecture (generate a certain number of sorted runs based on buffer available).
+    * After getting the actual/estimate number of sorted runs, we take the number of iteration to be log based 2 of the number of sorted runs, 
+    * as the sorting are done in a way that is similar to merge sort (merging two runs each time).
     * @see simpledb.plan.Plan#blocksAccessed()
     */
    public int blocksAccessed() {
-      // does not include the one-time cost of sorting
       Plan mp = new MaterializePlan(tx, p); // not opened; just for analysis
+      // include the cost of sorting
       if (numberOfSortedRuns == -1) {
          numberOfSortedRuns = (int) Math.ceil(mp.blocksAccessed() / SimpleDB.BUFFER_SIZE);
       }
