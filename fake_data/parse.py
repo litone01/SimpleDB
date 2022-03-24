@@ -5,7 +5,7 @@ from pathlib import Path
 # dataset_folder_names = ["100", "1000", "5000", "10000", "15000"]
 dataset_folder_names = ["50"]
 table_schemas = {
-    "STUDENT": [("sid", "int"), ("sname", "varchar(50)")],
+    "STUDENT": [("sid", "int"), ("sname", "varchar(50)"), ("gradyear", "int")],
     "STAFF": [("stid", "int"), ("stname", "varchar(50)")],
     "COURSE": [("cid", "int"), ("cname", "varchar(50)")],
     "SECTION": [("secid", "int"), ("courseid", "int"), ("staffid", "int")],
