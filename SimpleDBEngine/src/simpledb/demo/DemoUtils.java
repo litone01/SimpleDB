@@ -72,14 +72,14 @@ public class DemoUtils {
                 }
                 planner.executeUpdate(query, tx);
 
-                // // Btree index cannot insert multiple values in one transcation
-                // // We commit and start a new transaction after {max_inserts_per_transaction_for_index} inserts
-                // if (query_count % max_inserts_per_transaction_for_index == 0) {
-                //     // System.out.println("Inserted data from file " + file_name + " into table " + table_name + " with " + query_count + " queries");
-                //     tx.commit();
-                //     planner = db.planner();
-                //     tx = db.newTx();
-                // }
+                // Btree index cannot insert multiple values in one transcation
+                // We commit and start a new transaction after {max_inserts_per_transaction_for_index} inserts
+                if (query_count % max_inserts_per_transaction_for_index == 0) {
+                    // System.out.println("Inserted data from file " + file_name + " into table " + table_name + " with " + query_count + " queries");
+                    tx.commit();
+                    planner = db.planner();
+                    tx = db.newTx();
+                }
             }
             reader.close();
             System.out.println("Inserted data from file " + file_name + " into table " + table_name + " with " + query_count + " queries with index type " + index_type);
@@ -172,14 +172,14 @@ public class DemoUtils {
                 }
                 planner.executeUpdate(query, tx);
 
-                // // Btree index cannot insert multiple values in one transcation
-                // // We commit and start a new transaction after {max_inserts_per_transaction_for_index} inserts
-                // if (query_count % max_inserts_per_transaction_for_index == 0) {
-                //     // System.out.println("Inserted data from file " + file_name + " into table " + table_name + " with " + query_count + " queries");
-                //     tx.commit();
-                //     planner = db.planner();
-                //     tx = db.newTx();
-                // }
+                // Btree index cannot insert multiple values in one transcation
+                // We commit and start a new transaction after {max_inserts_per_transaction_for_index} inserts
+                if (query_count % max_inserts_per_transaction_for_index == 0) {
+                    // System.out.println("Inserted data from file " + file_name + " into table " + table_name + " with " + query_count + " queries");
+                    tx.commit();
+                    planner = db.planner();
+                    tx = db.newTx();
+                }
             }
             reader.close();
             System.out.println("Inserted data from file " + file_name + " into table " + table_name + " with " + query_count + " queries with index type " + index_type);
