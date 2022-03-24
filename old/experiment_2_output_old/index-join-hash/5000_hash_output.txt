@@ -1,0 +1,91 @@
+creating new database
+Inserted data from file STUDENT.sql into table STUDENT with 5002 queries with index type hash
+Inserted data from file COURSE.sql into table COURSE with 5001 queries with index type hash
+Inserted data from file STAFF.sql into table STAFF with 5002 queries with index type hash
+Inserted data from file ENROLL.sql into table ENROLL with 5003 queries with index type hash
+Inserted data from file SECTION.sql into table SECTION with 5003 queries with index type hash
+recovering existing database
+select count(sid) from student
+---------------QUERY PLAN---------------
+( project fields[countofsid] of 
+    ( `student` group by [] ) )
+----------------------------------------
+ countofsid
+-----------
+       5000
+Total number of records returned: 1
+select count(stid) from staff
+---------------QUERY PLAN---------------
+( project fields[countofstid] of 
+    ( `staff` group by [] ) )
+----------------------------------------
+ countofstid
+------------
+        5000
+Total number of records returned: 1
+select count(cid) from course
+---------------QUERY PLAN---------------
+( project fields[countofcid] of 
+    ( `course` group by [] ) )
+----------------------------------------
+ countofcid
+-----------
+       5000
+Total number of records returned: 1
+select count(secid) from section
+---------------QUERY PLAN---------------
+( project fields[countofsecid] of 
+    ( `section` group by [] ) )
+----------------------------------------
+ countofsecid
+-------------
+         5000
+Total number of records returned: 1
+select count(eid) from enroll
+---------------QUERY PLAN---------------
+( project fields[countofeid] of 
+    ( `enroll` group by [] ) )
+----------------------------------------
+ countofeid
+-----------
+       5000
+Total number of records returned: 1
+recovering existing database
+---------------QUERY PLAN---------------
+( project fields[sid, studentid, sectionid, secid, staffid, stid] of 
+    (select 
+    ( (select 
+    ( (select 
+    ( `student` index join `enroll` on sid=studentid(hash index) )
+    using predicate sid=studentid) index join `section` on sectionid=secid(hash index) )
+    using predicate sectionid=secid) index join `staff` on staffid=stid(hash index) )
+    using predicate staffid=stid) )
+----------------------------------------
+Total number of records returned: 5000
+---------------QUERY PLAN---------------
+( project fields[sid, studentid, sectionid, secid, staffid, stid] of 
+    (select 
+    ( (select 
+    ( (select 
+    ( `student` index join `enroll` on sid=studentid(hash index) )
+    using predicate sid=studentid) index join `section` on sectionid=secid(hash index) )
+    using predicate sectionid=secid) index join `staff` on staffid=stid(hash index) )
+    using predicate staffid=stid) )
+----------------------------------------
+Total number of records returned: 5000
+---------------QUERY PLAN---------------
+( project fields[sid, studentid, sectionid, secid, staffid, stid] of 
+    (select 
+    ( (select 
+    ( (select 
+    ( `student` index join `enroll` on sid=studentid(hash index) )
+    using predicate sid=studentid) index join `section` on sectionid=secid(hash index) )
+    using predicate sectionid=secid) index join `staff` on staffid=stid(hash index) )
+    using predicate staffid=stid) )
+----------------------------------------
+Total number of records returned: 5000
+# of rows: 5000, Query: select sid, studentid, sectionid, secid, staffid, stid from student, enroll, section, staff where sid = studentid and sectionid = secid and staffid = stid
+Average time: 0.8736666666666667 s
+Run#0 Time: 0.878 s
+Run#1 Time: 0.738 s
+Run#2 Time: 1.005 s

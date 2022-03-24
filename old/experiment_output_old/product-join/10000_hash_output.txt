@@ -1,0 +1,74 @@
+Warning: db_experiment_index_hash_10000 exists, skip inserting data
+recovering existing database
+select count(sid) from student
+---------------QUERY PLAN---------------
+( project fields[countofsid] of 
+    ( `student` group by [] ) )
+----------------------------------------
+ countofsid
+-----------
+      10000
+Total number of records returned: 1
+select count(stid) from staff
+---------------QUERY PLAN---------------
+( project fields[countofstid] of 
+    ( `staff` group by [] ) )
+----------------------------------------
+ countofstid
+------------
+       10000
+Total number of records returned: 1
+select count(cid) from course
+---------------QUERY PLAN---------------
+( project fields[countofcid] of 
+    ( `course` group by [] ) )
+----------------------------------------
+ countofcid
+-----------
+      10000
+Total number of records returned: 1
+select count(secid) from section
+---------------QUERY PLAN---------------
+( project fields[countofsecid] of 
+    ( `section` group by [] ) )
+----------------------------------------
+ countofsecid
+-------------
+        10000
+Total number of records returned: 1
+select count(eid) from enroll
+---------------QUERY PLAN---------------
+( project fields[countofeid] of 
+    ( `enroll` group by [] ) )
+----------------------------------------
+ countofeid
+-----------
+      10000
+Total number of records returned: 1
+recovering existing database
+---------------QUERY PLAN---------------
+( project fields[sid, sname, eid, studentid] of 
+    (select 
+    ( `student` multi-buffer product join `enroll` )
+    using predicate sid=studentid) )
+----------------------------------------
+Total number of records returned: 10000
+---------------QUERY PLAN---------------
+( project fields[sid, sname, eid, studentid] of 
+    (select 
+    ( `student` multi-buffer product join `enroll` )
+    using predicate sid=studentid) )
+----------------------------------------
+Total number of records returned: 10000
+---------------QUERY PLAN---------------
+( project fields[sid, sname, eid, studentid] of 
+    (select 
+    ( `student` multi-buffer product join `enroll` )
+    using predicate sid=studentid) )
+----------------------------------------
+Total number of records returned: 10000
+# of rows: 10000, Query: select sid, sname, eid, studentid from student, enroll where sid = studentid
+Average time: 62.958333333333336 s
+Run#0 Time: 70.161 s
+Run#1 Time: 61.337 s
+Run#2 Time: 57.377 s

@@ -68,7 +68,9 @@ public class HeuristicQueryPlanner implements QueryPlanner {
 
       System.out.println("-----------------------QUERY PLAN-----------------------");
       System.out.println(currentplan.toString());
-      System.out.println("--------------------------------------------------------\n");
+      System.out.println("block accessed:" + currentplan.blocksAccessed());
+      System.out.println("records output:" + currentplan.recordsOutput());
+      System.out.println("----------------------------------------");
       
       return currentplan;
    }

@@ -26,6 +26,7 @@ public class TestUtil {
             ResultSetMetaData md = new EmbeddedMetaData(sch);
             int numcols = md.getColumnCount();
             int totalwidth = 0;
+            int totalOutputReturned = 0;
 
             // print header
             for(int i=1; i<=numcols; i++) {
@@ -47,16 +48,18 @@ public class TestUtil {
                     int fldtype = md.getColumnType(i);
                     String fmt = "%" + md.getColumnDisplaySize(i);
                     if (fldtype == Types.INTEGER) {
-                    int ival = s.getInt(fldname);
-                    System.out.format(fmt + "d", ival);
+                        int ival = s.getInt(fldname);
+                        System.out.format(fmt + "d", ival);
                     }
                     else {
-                    String sval = s.getString(fldname);
-                    System.out.format(fmt + "s", sval);
+                        String sval = s.getString(fldname);
+                        System.out.format(fmt + "s", sval);
                     }
                 }
                 System.out.println();
+                totalOutputReturned++;
             }
+            System.out.println("Total number of records returned: " + totalOutputReturned);
             s.close();
             tx.commit();
         }
@@ -65,6 +68,50 @@ public class TestUtil {
         }
     }
     
+    public static void executeQueryExperiment(String query, SimpleDB db) {
+        Transaction tx  = db.newTx();
+        Planner planner = db.planner();
+        doQueryExperiment(query, tx, planner);
+    }
+
+    // Minimise printing to user console
+    private static void doQueryExperiment(String cmd, Transaction tx, Planner planner) {
+        try {
+            // System.out.println(cmd);
+            Plan p = planner.createQueryPlan(cmd, tx);
+            Scan s = p.open();
+            Schema sch = p.schema();
+            ResultSetMetaData md = new EmbeddedMetaData(sch);
+            int numcols = md.getColumnCount();
+            int totalwidth = 0;
+            int totalOutputReturned = 0;
+
+            //execute
+            while(s.next()) {
+                for (int i=1; i<=numcols; i++) {
+                    String fldname = md.getColumnName(i);
+                    int fldtype = md.getColumnType(i);
+                    String fmt = "%" + md.getColumnDisplaySize(i);
+                    if (fldtype == Types.INTEGER) {
+                        int ival = s.getInt(fldname);
+                        // System.out.format(fmt + "d", ival);
+                    }
+                    else {
+                        String sval = s.getString(fldname);
+                        // System.out.format(fmt + "s", sval);
+                    }
+                }
+                // System.out.println();
+                totalOutputReturned++;
+            }
+            System.out.println("Total number of records returned: " + totalOutputReturned);
+            s.close();
+            tx.commit();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     public static void createSampleStudentDBWithoutIndex(Planner planner, Transaction tx) {
         String s = "create table STUDENT(SId int, SName varchar(10), MajorId int, GradYear int)";

@@ -1,0 +1,74 @@
+Warning: db_experiment_index_btree_100 exists, skip inserting data
+recovering existing database
+select count(sid) from student
+---------------QUERY PLAN---------------
+( project fields[countofsid] of 
+    (  group by [] ) )
+----------------------------------------
+ countofsid
+-----------
+        100
+Total number of records returned: 1
+select count(stid) from staff
+---------------QUERY PLAN---------------
+( project fields[countofstid] of 
+    (  group by [] ) )
+----------------------------------------
+ countofstid
+------------
+         100
+Total number of records returned: 1
+select count(cid) from course
+---------------QUERY PLAN---------------
+( project fields[countofcid] of 
+    (  group by [] ) )
+----------------------------------------
+ countofcid
+-----------
+        100
+Total number of records returned: 1
+select count(secid) from section
+---------------QUERY PLAN---------------
+( project fields[countofsecid] of 
+    (  group by [] ) )
+----------------------------------------
+ countofsecid
+-------------
+          100
+Total number of records returned: 1
+select count(eid) from enroll
+---------------QUERY PLAN---------------
+( project fields[countofeid] of 
+    (  group by [] ) )
+----------------------------------------
+ countofeid
+-----------
+        100
+Total number of records returned: 1
+recovering existing database
+---------------QUERY PLAN---------------
+( project fields[sid, sname, eid, studentid] of 
+    (select 
+    ( `enroll` hash join `student` on studentid=sid )
+    using predicate sid=studentid) )
+----------------------------------------
+Total number of records returned: 100
+---------------QUERY PLAN---------------
+( project fields[sid, sname, eid, studentid] of 
+    (select 
+    ( `enroll` hash join `student` on studentid=sid )
+    using predicate sid=studentid) )
+----------------------------------------
+Total number of records returned: 100
+---------------QUERY PLAN---------------
+( project fields[sid, sname, eid, studentid] of 
+    (select 
+    ( `enroll` hash join `student` on studentid=sid )
+    using predicate sid=studentid) )
+----------------------------------------
+Total number of records returned: 100
+# of rows: 100, Query: select sid, sname, eid, studentid from student, enroll where sid = studentid
+Average time: 0.051666666666666666 s
+Run#0 Time: 0.052 s
+Run#1 Time: 0.051 s
+Run#2 Time: 0.052 s
