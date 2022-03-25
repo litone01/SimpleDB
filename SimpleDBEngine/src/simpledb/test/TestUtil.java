@@ -59,7 +59,7 @@ public class TestUtil {
                 System.out.println();
                 totalOutputReturned++;
             }
-            System.out.println("Total number of records returned: " + totalOutputReturned);
+            // System.out.println("Total number of records returned: " + totalOutputReturned);
             s.close();
             tx.commit();
         }
