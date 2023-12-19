@@ -1,0 +1,85 @@
+Warning: db_experiment_index_hash_100 exists, skip inserting data
+recovering existing database
+select count(sid) from student
+---------------QUERY PLAN---------------
+( project fields[countofsid] of 
+    ( `student` group by [] ) )
+----------------------------------------
+after split into runs
+ countofsid
+-----------
+        100
+Total number of records returned: 1
+select count(stid) from staff
+---------------QUERY PLAN---------------
+( project fields[countofstid] of 
+    ( `staff` group by [] ) )
+----------------------------------------
+after split into runs
+ countofstid
+------------
+         100
+Total number of records returned: 1
+select count(cid) from course
+---------------QUERY PLAN---------------
+( project fields[countofcid] of 
+    ( `course` group by [] ) )
+----------------------------------------
+after split into runs
+ countofcid
+-----------
+        100
+Total number of records returned: 1
+select count(secid) from section
+---------------QUERY PLAN---------------
+( project fields[countofsecid] of 
+    ( `section` group by [] ) )
+----------------------------------------
+after split into runs
+ countofsecid
+-------------
+          100
+Total number of records returned: 1
+select count(eid) from enroll
+---------------QUERY PLAN---------------
+( project fields[countofeid] of 
+    ( `enroll` group by [] ) )
+----------------------------------------
+after split into runs
+ countofeid
+-----------
+        100
+Total number of records returned: 1
+recovering existing database
+---------------QUERY PLAN---------------
+( project fields[sid, sname, eid, studentid] of 
+    (select 
+    ( `student` sort merge join `enroll` on sid=studentid )
+    using predicate sid=studentid) )
+----------------------------------------
+after split into runs
+after split into runs
+Total number of records returned: 100
+---------------QUERY PLAN---------------
+( project fields[sid, sname, eid, studentid] of 
+    (select 
+    ( `student` sort merge join `enroll` on sid=studentid )
+    using predicate sid=studentid) )
+----------------------------------------
+after split into runs
+after split into runs
+Total number of records returned: 100
+---------------QUERY PLAN---------------
+( project fields[sid, sname, eid, studentid] of 
+    (select 
+    ( `student` sort merge join `enroll` on sid=studentid )
+    using predicate sid=studentid) )
+----------------------------------------
+after split into runs
+after split into runs
+Total number of records returned: 100
+# of rows: 100, Query: select sid, sname, eid, studentid from student, enroll where sid = studentid
+Average time: 0.36566666666666664 s
+Run#0 Time: 0.402 s
+Run#1 Time: 0.338 s
+Run#2 Time: 0.357 s

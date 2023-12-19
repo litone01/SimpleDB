@@ -1,0 +1,33 @@
+recovering existing database
+---------------QUERY PLAN---------------
+( project fields[sid, sname, eid, studentid] of 
+    (select 
+    ( `enroll` index join `student` on studentid=sid(btree index) )
+    using predicate sid=studentid) )
+block accessed:304
+records output:5
+----------------------------------------
+Total number of records returned: 100
+---------------QUERY PLAN---------------
+( project fields[sid, sname, eid, studentid] of 
+    (select 
+    ( `enroll` index join `student` on studentid=sid(btree index) )
+    using predicate sid=studentid) )
+block accessed:304
+records output:5
+----------------------------------------
+Total number of records returned: 100
+---------------QUERY PLAN---------------
+( project fields[sid, sname, eid, studentid] of 
+    (select 
+    ( `enroll` index join `student` on studentid=sid(btree index) )
+    using predicate sid=studentid) )
+block accessed:304
+records output:5
+----------------------------------------
+Total number of records returned: 100
+# of rows: 100, Query: select sid, sname, eid, studentid from enroll, student where sid = studentid
+Average time: 0.007 s
+Run#0 Time: 0.01 s
+Run#1 Time: 0.006 s
+Run#2 Time: 0.005 s

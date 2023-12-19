@@ -15,7 +15,7 @@ public class CreateStudentDBWithIndex {
 			planner.executeUpdate(s, tx);
 			System.out.println("Table STUDENT created.");
 			
-			s = "create index studentid on student (sid) using hash";
+			s = "create index studentid on student (sid) using btree";
 			planner.executeUpdate(s, tx);
 			System.out.println("Hash Index studentid created on Table student and Field sid.");
 
@@ -86,7 +86,7 @@ public class CreateStudentDBWithIndex {
 			planner.executeUpdate(s, tx);
 			System.out.println("Table ENROLL created.");
 			
-			s = "create index enrollStudentId on enroll(studentid) using hash";
+			s = "create index enrollStudentId on enroll(studentid) using btree";
 			planner.executeUpdate(s, tx);
 			System.out.println("Hash Index enrollStudentId created on Table enroll and Field studentid.");
 

@@ -1,6 +1,7 @@
 package simpledb.materialize;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -129,7 +130,6 @@ public class HashJoinScan implements Scan {
         if (temps2.size() == 0){
             return false;
         }
-
         Set<Integer> allTemps2Keys = temps2.keySet();
 
         // build hash table for first s2 partition that has a matching s1 partition

@@ -1,0 +1,74 @@
+Warning: db_experiment_index_hash_5000 exists, skip inserting data
+recovering existing database
+select count(sid) from student
+---------------QUERY PLAN---------------
+( project fields[countofsid] of 
+    ( `student` group by [] ) )
+----------------------------------------
+ countofsid
+-----------
+       5000
+Total number of records returned: 1
+select count(stid) from staff
+---------------QUERY PLAN---------------
+( project fields[countofstid] of 
+    ( `staff` group by [] ) )
+----------------------------------------
+ countofstid
+------------
+        5000
+Total number of records returned: 1
+select count(cid) from course
+---------------QUERY PLAN---------------
+( project fields[countofcid] of 
+    ( `course` group by [] ) )
+----------------------------------------
+ countofcid
+-----------
+       5000
+Total number of records returned: 1
+select count(secid) from section
+---------------QUERY PLAN---------------
+( project fields[countofsecid] of 
+    ( `section` group by [] ) )
+----------------------------------------
+ countofsecid
+-------------
+         5000
+Total number of records returned: 1
+select count(eid) from enroll
+---------------QUERY PLAN---------------
+( project fields[countofeid] of 
+    ( `enroll` group by [] ) )
+----------------------------------------
+ countofeid
+-----------
+       5000
+Total number of records returned: 1
+recovering existing database
+---------------QUERY PLAN---------------
+( project fields[sid, sname, eid, studentid] of 
+    (select 
+    ( `student` block nested loop join `enroll` on sid=studentid )
+    using predicate sid=studentid) )
+----------------------------------------
+Total number of records returned: 5000
+---------------QUERY PLAN---------------
+( project fields[sid, sname, eid, studentid] of 
+    (select 
+    ( `student` block nested loop join `enroll` on sid=studentid )
+    using predicate sid=studentid) )
+----------------------------------------
+Total number of records returned: 5000
+---------------QUERY PLAN---------------
+( project fields[sid, sname, eid, studentid] of 
+    (select 
+    ( `student` block nested loop join `enroll` on sid=studentid )
+    using predicate sid=studentid) )
+----------------------------------------
+Total number of records returned: 5000
+# of rows: 5000, Query: select sid, sname, eid, studentid from student, enroll where sid = studentid
+Average time: 10.926 s
+Run#0 Time: 10.607 s
+Run#1 Time: 11.049 s
+Run#2 Time: 11.122 s

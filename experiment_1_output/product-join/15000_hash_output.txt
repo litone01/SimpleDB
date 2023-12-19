@@ -1,0 +1,33 @@
+recovering existing database
+---------------QUERY PLAN---------------
+( project fields[sid, sname, eid, studentid] of 
+    (select 
+    ( `enroll` multi-buffer product join `student` )
+    using predicate sid=studentid) )
+block accessed:189700
+records output:44991
+----------------------------------------
+Total number of records returned: 15000
+---------------QUERY PLAN---------------
+( project fields[sid, sname, eid, studentid] of 
+    (select 
+    ( `enroll` multi-buffer product join `student` )
+    using predicate sid=studentid) )
+block accessed:189700
+records output:44991
+----------------------------------------
+Total number of records returned: 15000
+---------------QUERY PLAN---------------
+( project fields[sid, sname, eid, studentid] of 
+    (select 
+    ( `enroll` multi-buffer product join `student` )
+    using predicate sid=studentid) )
+block accessed:189700
+records output:44991
+----------------------------------------
+Total number of records returned: 15000
+# of rows: 15000, Query: select sid, sname, eid, studentid from enroll, student where sid = studentid
+Average time: 135.006 s
+Run#0 Time: 132.602 s
+Run#1 Time: 134.956 s
+Run#2 Time: 137.46 s

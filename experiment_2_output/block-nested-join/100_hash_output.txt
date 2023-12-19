@@ -1,0 +1,107 @@
+Warning: db_experiment_2_index_hash_100 exists, skip inserting data
+recovering existing database
+select count(sid) from student
+---------------QUERY PLAN---------------
+( project fields[countofsid] of 
+    ( `student` group by [] ) )
+block accessed:68
+records output:1
+----------------------------------------
+after split into runs
+ countofsid
+-----------
+        100
+Total number of records returned: 1
+select count(stid) from staff
+---------------QUERY PLAN---------------
+( project fields[countofstid] of 
+    ( `staff` group by [] ) )
+block accessed:68
+records output:1
+----------------------------------------
+after split into runs
+ countofstid
+------------
+         100
+Total number of records returned: 1
+select count(cid) from course
+---------------QUERY PLAN---------------
+( project fields[countofcid] of 
+    ( `course` group by [] ) )
+block accessed:68
+records output:1
+----------------------------------------
+after split into runs
+ countofcid
+-----------
+        100
+Total number of records returned: 1
+select count(secid) from section
+---------------QUERY PLAN---------------
+( project fields[countofsecid] of 
+    ( `section` group by [] ) )
+block accessed:8
+records output:1
+----------------------------------------
+after split into runs
+ countofsecid
+-------------
+          100
+Total number of records returned: 1
+select count(eid) from enroll
+---------------QUERY PLAN---------------
+( project fields[countofeid] of 
+    ( `enroll` group by [] ) )
+block accessed:8
+records output:1
+----------------------------------------
+after split into runs
+ countofeid
+-----------
+        100
+Total number of records returned: 1
+recovering existing database
+---------------QUERY PLAN---------------
+( project fields[sid, studentid, sectionid, secid, staffid, stid] of 
+    (select 
+    ( (select 
+    ( (select 
+    ( `student` block nested loop join `enroll` on sid=studentid )
+    using predicate sid=studentid) block nested loop join `section` on sectionid=secid )
+    using predicate sectionid=secid) block nested loop join `staff` on staffid=stid )
+    using predicate staffid=stid) )
+block accessed:25
+records output:0
+----------------------------------------
+Total number of records returned: 100
+---------------QUERY PLAN---------------
+( project fields[sid, studentid, sectionid, secid, staffid, stid] of 
+    (select 
+    ( (select 
+    ( (select 
+    ( `student` block nested loop join `enroll` on sid=studentid )
+    using predicate sid=studentid) block nested loop join `section` on sectionid=secid )
+    using predicate sectionid=secid) block nested loop join `staff` on staffid=stid )
+    using predicate staffid=stid) )
+block accessed:25
+records output:0
+----------------------------------------
+Total number of records returned: 100
+---------------QUERY PLAN---------------
+( project fields[sid, studentid, sectionid, secid, staffid, stid] of 
+    (select 
+    ( (select 
+    ( (select 
+    ( `student` block nested loop join `enroll` on sid=studentid )
+    using predicate sid=studentid) block nested loop join `section` on sectionid=secid )
+    using predicate sectionid=secid) block nested loop join `staff` on staffid=stid )
+    using predicate staffid=stid) )
+block accessed:25
+records output:0
+----------------------------------------
+Total number of records returned: 100
+# of rows: 100, Query: select sid, studentid, sectionid, secid, staffid, stid from student, enroll, section, staff where sid = studentid and sectionid = secid and staffid = stid
+Average time: 0.22366666666666668 s
+Run#0 Time: 0.243 s
+Run#1 Time: 0.251 s
+Run#2 Time: 0.177 s

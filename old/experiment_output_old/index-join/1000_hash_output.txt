@@ -1,0 +1,27 @@
+recovering existing database
+---------------QUERY PLAN---------------
+( project fields[sid, sname, eid, studentid] of 
+    (select 
+    ( `student` index join `enroll` on sid=studentid(hash index) )
+    using predicate sid=studentid) )
+----------------------------------------
+Total number of records returned: 1000
+---------------QUERY PLAN---------------
+( project fields[sid, sname, eid, studentid] of 
+    (select 
+    ( `student` index join `enroll` on sid=studentid(hash index) )
+    using predicate sid=studentid) )
+----------------------------------------
+Total number of records returned: 1000
+---------------QUERY PLAN---------------
+( project fields[sid, sname, eid, studentid] of 
+    (select 
+    ( `student` index join `enroll` on sid=studentid(hash index) )
+    using predicate sid=studentid) )
+----------------------------------------
+Total number of records returned: 1000
+# of rows: 1000, Query: select sid, sname, eid, studentid from student, enroll where sid = studentid
+Average time: 0.083 s
+Run#0 Time: 0.124 s
+Run#1 Time: 0.07 s
+Run#2 Time: 0.055 s

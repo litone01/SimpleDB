@@ -1,0 +1,74 @@
+Warning: db_experiment_index_btree_10000 exists, skip inserting data
+recovering existing database
+select count(sid) from student
+---------------QUERY PLAN---------------
+( project fields[countofsid] of 
+    ( `student` group by [] ) )
+----------------------------------------
+ countofsid
+-----------
+      10000
+Total number of records returned: 1
+select count(stid) from staff
+---------------QUERY PLAN---------------
+( project fields[countofstid] of 
+    ( `staff` group by [] ) )
+----------------------------------------
+ countofstid
+------------
+       10000
+Total number of records returned: 1
+select count(cid) from course
+---------------QUERY PLAN---------------
+( project fields[countofcid] of 
+    ( `course` group by [] ) )
+----------------------------------------
+ countofcid
+-----------
+      10000
+Total number of records returned: 1
+select count(secid) from section
+---------------QUERY PLAN---------------
+( project fields[countofsecid] of 
+    ( `section` group by [] ) )
+----------------------------------------
+ countofsecid
+-------------
+        10000
+Total number of records returned: 1
+select count(eid) from enroll
+---------------QUERY PLAN---------------
+( project fields[countofeid] of 
+    ( `enroll` group by [] ) )
+----------------------------------------
+ countofeid
+-----------
+      10000
+Total number of records returned: 1
+recovering existing database
+---------------QUERY PLAN---------------
+( project fields[sid, sname, eid, studentid] of 
+    (select 
+    ( `enroll` sort merge join `student` on studentid=sid )
+    using predicate sid=studentid) )
+----------------------------------------
+Total number of records returned: 9999
+---------------QUERY PLAN---------------
+( project fields[sid, sname, eid, studentid] of 
+    (select 
+    ( `enroll` sort merge join `student` on studentid=sid )
+    using predicate sid=studentid) )
+----------------------------------------
+Total number of records returned: 9999
+---------------QUERY PLAN---------------
+( project fields[sid, sname, eid, studentid] of 
+    (select 
+    ( `enroll` sort merge join `student` on studentid=sid )
+    using predicate sid=studentid) )
+----------------------------------------
+Total number of records returned: 9999
+# of rows: 10000, Query: select sid, sname, eid, studentid from student, enroll where sid = studentid
+Average time: 96.44333333333334 s
+Run#0 Time: 96.025 s
+Run#1 Time: 95.531 s
+Run#2 Time: 97.774 s

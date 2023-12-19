@@ -51,7 +51,8 @@ public class Transaction {
     */
    public void commit() {
       recoveryMgr.commit();
-      System.out.println("transaction " + txnum + " committed");
+      // TODO: uncomment after insertion is done
+      // System.out.println("transaction " + txnum + " committed");
       concurMgr.release();
       mybuffers.unpinAll();
    }

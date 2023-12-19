@@ -1,0 +1,79 @@
+creating new database
+Inserted data from file STUDENT.sql into table STUDENT with 10002 queries with index type hash
+Inserted data from file COURSE.sql into table COURSE with 10001 queries with index type hash
+Inserted data from file STAFF.sql into table STAFF with 10002 queries with index type hash
+Inserted data from file ENROLL.sql into table ENROLL with 10002 queries with index type hash
+Inserted data from file SECTION.sql into table SECTION with 10002 queries with index type hash
+recovering existing database
+select count(sid) from student
+---------------QUERY PLAN---------------
+( project fields[countofsid] of 
+    (  group by [] ) )
+----------------------------------------
+ countofsid
+-----------
+      10000
+Total number of records returned: 1
+select count(stid) from staff
+---------------QUERY PLAN---------------
+( project fields[countofstid] of 
+    (  group by [] ) )
+----------------------------------------
+ countofstid
+------------
+       10000
+Total number of records returned: 1
+select count(cid) from course
+---------------QUERY PLAN---------------
+( project fields[countofcid] of 
+    (  group by [] ) )
+----------------------------------------
+ countofcid
+-----------
+      10000
+Total number of records returned: 1
+select count(secid) from section
+---------------QUERY PLAN---------------
+( project fields[countofsecid] of 
+    (  group by [] ) )
+----------------------------------------
+ countofsecid
+-------------
+        10000
+Total number of records returned: 1
+select count(eid) from enroll
+---------------QUERY PLAN---------------
+( project fields[countofeid] of 
+    (  group by [] ) )
+----------------------------------------
+ countofeid
+-----------
+      10000
+Total number of records returned: 1
+recovering existing database
+---------------QUERY PLAN---------------
+( project fields[sid, sname, eid, studentid] of 
+    (select 
+    ( `student` index join `enroll` on sid=studentid(hash index) )
+    using predicate sid=studentid) )
+----------------------------------------
+Total number of records returned: 10000
+---------------QUERY PLAN---------------
+( project fields[sid, sname, eid, studentid] of 
+    (select 
+    ( `student` index join `enroll` on sid=studentid(hash index) )
+    using predicate sid=studentid) )
+----------------------------------------
+Total number of records returned: 10000
+---------------QUERY PLAN---------------
+( project fields[sid, sname, eid, studentid] of 
+    (select 
+    ( `student` index join `enroll` on sid=studentid(hash index) )
+    using predicate sid=studentid) )
+----------------------------------------
+Total number of records returned: 10000
+# of rows: 10000, Query: select sid, sname, eid, studentid from student, enroll where sid = studentid
+Average time: 0.8973333333333334 s
+Run#0 Time: 0.915 s
+Run#1 Time: 0.918 s
+Run#2 Time: 0.859 s
