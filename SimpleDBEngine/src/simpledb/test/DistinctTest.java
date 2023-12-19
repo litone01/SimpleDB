@@ -18,6 +18,12 @@ public class DistinctTest {
             String qry;
             qry = "select distinct majorid, gradyear from student where gradyear < 2022 and majorid = 10 order by gradyear, majorid";
             TestUtil.executeQuery(qry, db);
+
+            qry = "select distinct majorid, gradyear from student where gradyear < 2022 and majorid = 10";
+            TestUtil.executeQuery(qry, db);
+
+            qry = "select distinct majorid, count(gradyear), count(distinct gradyear), max(distinct sid) from student group by majorid";
+            TestUtil.executeQuery(qry, db);
         }
         catch(Exception e) {
             e.printStackTrace();
